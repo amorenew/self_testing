@@ -1,0 +1,24 @@
+name: self_testing_example
+description: "Demonstrates how to use the self_testing package."
+publish_to: "none"
+
+environment:
+  sdk: ^3.9.2
+  flutter: ">=3.0.0"
+
+dependencies:
+  diff_image2: ^1.3.1
+  dio: ^5.9.0
+  flutter:
+    sdk: flutter
+  self_testing:
+    path: ../
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+

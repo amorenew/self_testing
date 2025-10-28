@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Report - Flutter Self Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem 0;
+        }
+
+        .container {
+            width: calc(100% - 40px);
+            margin: 0 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 1.1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.28);
+        }
+
+        .header-top {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            color: #2d3748;
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .header h1::before {
+            content: '🧪';
+            font-size: 1.5rem;
+        }
+
+        .header-timestamps {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-left: auto;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .header-chip {
+            background: rgba(236, 241, 248, 0.9);
+            padding: 0.3rem 0.6rem;
+            border-radius: 16px;
+            font-size: 0.64rem;
+            font-weight: 600;
+            color: #2d3748;
+            box-shadow: 0 6px 18px rgba(76, 81, 191, 0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.28rem;
+            letter-spacing: 0.35px;
+            white-space: nowrap;
+        }
+
+        .header-chip .chip-label {
+            font-size: 0.52rem;
+            text-transform: uppercase;
+            letter-spacing: 0.55px;
+            color: #5a6b82;
+        }
+
+        .header-chip .chip-value {
+            font-size: 0.7rem;
+            color: #1a202c;
+        }
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            margin-top: 0.75rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+            transition: transform 0.2s, box-shadow 0.2s;
+            min-height: 2.1rem;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+        }
+
+        .stat-card.passed {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.failed {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .stat-card.golden {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: #553c02;
+        }
+
+        .stat-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .stat-card p {
+            font-size: 0.58rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.85px;
+            margin: 0;
+        }
+
+        .scenario-list {
+            display: grid;
+            gap: 1.15rem;
+        }
+
+        .scenario-card,
+        .test-card {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .scenario-card:hover,
+        .test-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+        }
+
+        .scenario-card {
+            border-left: 6px solid #4c51bf;
+        }
+
+        .scenario-card.passed {
+            border-left-color: #38ef7d;
+        }
+
+        .scenario-card.failed {
+            border-left-color: #ff6a00;
+        }
+
+        .scenario-card.expandable .scenario-body {
+            display: none;
+        }
+
+        .scenario-card.expandable.open .scenario-body {
+            display: block;
+        }
+
+        .test-card.expandable .test-body {
+            display: none;
+        }
+
+        .test-card.expandable.open .test-body {
+            display: block;
+        }
+
+        .scenario-header {
+            padding: 0.72rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .scenario-metrics {
+            display: flex;
+            flex: 1 1 320px;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .scenario-chip-group {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .scenario-chip {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.16rem 0.32rem;
+            border-radius: 16px;
+            font-size: 0.64rem;
+            font-weight: 600;
+            color: #2d3748;
+            box-shadow: 0 6px 18px rgba(76, 81, 191, 0.12);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.15rem;
+            letter-spacing: 0.4px;
+            min-width: 4.2rem;
+            justify-content: space-between;
+        }
+
+        .scenario-chip .chip-label {
+            font-size: 0.52rem;
+            text-transform: uppercase;
+            letter-spacing: 0.55px;
+            color: #5a6b82;
+        }
+
+        .scenario-chip .chip-value {
+            font-size: 0.72rem;
+            color: #1a202c;
+        }
+
+        .scenario-chip.total {
+            background: rgba(102, 126, 234, 0.16);
+            color: #3c3fa3;
+        }
+
+        .scenario-chip.passed {
+            background: rgba(56, 239, 125, 0.18);
+            color: #067a4d;
+        }
+
+        .scenario-chip.failed {
+            background: rgba(255, 107, 107, 0.2);
+            color: #c53030;
+        }
+
+        .scenario-chip.subtle {
+            background: rgba(236, 241, 248, 0.8);
+            color: #4a5568;
+            box-shadow: none;
+        }
+
+        .scenario-header.passed {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.12) 0%, rgba(56, 239, 125, 0.12) 100%);
+        }
+
+        .scenario-header.failed {
+            background: linear-gradient(135deg, rgba(238, 9, 121, 0.12) 0%, rgba(255, 106, 0, 0.12) 100%);
+        }
+
+        .scenario-header.expandable-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .scenario-header.expandable-header:focus {
+            outline: none;
+        }
+
+        .scenario-header.expandable-header:focus-visible {
+            box-shadow: inset 0 0 0 2px rgba(102, 126, 234, 0.28);
+        }
+
+        .scenario-title {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #1a202c;
+            flex: 0 1 220px;
+        }
+
+        .scenario-toggle-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.3rem;
+            height: 1.3rem;
+            color: #4c51bf;
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+        }
+
+        .scenario-card.expandable.open .scenario-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .scenario-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.18rem 0.4rem;
+            border-radius: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-size: 0.62rem;
+            margin-left: auto;
+            min-width: 4.5rem;
+            justify-content: center;
+        }
+
+        .scenario-status.passed {
+            background: rgba(56, 239, 125, 0.24);
+            color: #067a4d;
+        }
+
+        .scenario-status.failed {
+            background: rgba(255, 107, 107, 0.26);
+            color: #c24024;
+        }
+
+        .scenario-status::before {
+            font-size: 0.85rem;
+        }
+
+        .scenario-status.passed::before {
+            content: '✅';
+        }
+
+        .scenario-status.failed::before {
+            content: '❌';
+        }
+
+        .scenario-body {
+            padding: 1.25rem;
+            background: #f8fafc;
+        }
+
+        .scenario-steps {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .test-header.expandable-header {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .test-header.expandable-header:focus {
+            outline: none;
+        }
+
+        .test-header.expandable-header:focus-visible {
+            box-shadow: inset 0 0 0 2px rgba(102, 126, 234, 0.28);
+        }
+
+        .test-header {
+            padding: 0.55rem 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .test-header.passed {
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+            border-left: 5px solid #38ef7d;
+        }
+
+        .test-header.failed {
+            background: linear-gradient(135deg, rgba(238, 9, 121, 0.1) 0%, rgba(255, 106, 0, 0.1) 100%);
+            border-left: 5px solid #ff6a00;
+        }
+
+        .test-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1 1 220px;
+        }
+
+        .test-toggle-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            color: #4c51bf;
+            font-size: 0.8rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .test-card.expandable.open .test-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .test-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex-wrap: wrap;
+        }
+
+        .test-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.28rem 0.62rem;
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 0.64rem;
+            text-transform: uppercase;
+            letter-spacing: 0.55px;
+        }
+
+        .test-status.passed {
+            background: rgba(56, 239, 125, 0.18);
+            color: #0a7a4f;
+        }
+
+        .test-status.failed {
+            background: rgba(255, 107, 107, 0.2);
+            color: #c53030;
+        }
+
+        .test-status::before {
+            font-size: 0.75rem;
+        }
+
+        .test-status.passed::before {
+            content: '✅';
+        }
+
+        .test-status.failed::before {
+            content: '❌';
+        }
+
+        .test-body {
+            padding: 0.95rem 1rem;
+        }
+
+        .test-card.nested {
+            border-radius: 16px;
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .test-card.nested:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .test-card.nested .test-header {
+            border-left-width: 3px;
+            padding: 0.65rem 0.95rem;
+        }
+
+        .test-card.nested .test-body {
+            padding: 0.9rem 1.1rem;
+        }
+
+        .error-section {
+            background: #fff5f5;
+            border: 2px solid #fc8181;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .details-section {
+            margin-top: 1rem;
+            background: #edf2f7;
+            border-radius: 12px;
+            padding: 0.9rem 1.1rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .details-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .details-title::before {
+            content: '📝';
+        }
+
+        .details-section ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            color: #4a5568;
+            display: grid;
+            gap: 0.3rem;
+        }
+
+        .error-title {
+            color: #c53030;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .error-title::before {
+            content: '⚠️';
+        }
+
+        .error-message {
+            color: #742a2a;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .screenshots-section {
+            margin-top: 1.1rem;
+        }
+
+        .screenshots-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .screenshots-title::before {
+            content: '📸';
+        }
+
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .golden-section {
+            margin-top: 1.1rem;
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 1rem 1.25rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+        }
+
+        .golden-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .golden-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .golden-title::before {
+            content: '🎯';
+        }
+
+        .golden-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .golden-match {
+            background: rgba(56, 239, 125, 0.18);
+            color: #0c7c4f;
+            border: 1px solid rgba(56, 239, 125, 0.4);
+        }
+
+        .golden-mismatch {
+            background: rgba(255, 106, 0, 0.2);
+            color: #b43403;
+            border: 1px solid rgba(255, 106, 0, 0.4);
+        }
+
+        .golden-baselinecreated,
+        .golden-baselineupdated {
+            background: rgba(102, 126, 234, 0.2);
+            color: #364fc7;
+            border: 1px solid rgba(102, 126, 234, 0.4);
+        }
+
+        .golden-error-badge {
+            background: rgba(254, 178, 178, 0.3);
+            color: #c53030;
+            border: 1px solid rgba(254, 178, 178, 0.6);
+        }
+
+        .golden-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.4rem;
+            margin-bottom: 0.6rem;
+            font-size: 0.8rem;
+            color: #2d3748;
+        }
+
+        .golden-label {
+            font-weight: 600;
+            margin-right: 0.2rem;
+            color: #4a5568;
+        }
+
+        .golden-links {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            margin-top: 0.6rem;
+        }
+
+        .golden-link {
+            padding: 0.45rem 0.75rem;
+            border-radius: 999px;
+            background: #edf2f7;
+            color: #2d3748;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .golden-link:hover {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .golden-note {
+            margin-top: 0.5rem;
+            color: #1f2933;
+            font-size: 0.78rem;
+            line-height: 1.35;
+            background: linear-gradient(120deg, rgba(102, 126, 234, 0.18), rgba(118, 75, 162, 0.08));
+            border-radius: 12px;
+            padding: 0.75rem 0.85rem;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .golden-error {
+            margin-top: 0.75rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            color: #822727;
+            font-size: 0.8rem;
+            line-height: 1.35;
+            background: linear-gradient(120deg, rgba(254, 178, 178, 0.35), rgba(254, 215, 215, 0.25));
+            border: 1px solid rgba(229, 62, 62, 0.3);
+            border-radius: 12px;
+            padding: 0.75rem 0.95rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+        }
+
+        .golden-error-icon {
+            font-size: 1.25rem;
+            line-height: 1;
+            margin-top: 0.15rem;
+        }
+
+        .golden-error-text {
+            flex: 1;
+        }
+
+        .golden-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        .golden-image-card {
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+            background: white;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+        .golden-image-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .golden-image-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+            background: #1a202c;
+        }
+
+        .golden-image-label {
+            padding: 0.6rem 0.85rem;
+            font-weight: 600;
+            color: #2d3748;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .golden-image-label::before {
+            content: '🖼️';
+        }
+
+        .golden-image-card.placeholder,
+        .golden-image-card.missing {
+            cursor: default;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1.25rem;
+            background: #edf2f7;
+            border: 2px dashed #cbd5e0;
+        }
+
+        .golden-image-card.placeholder:hover,
+        .golden-image-card.missing:hover {
+            transform: none;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .golden-image-placeholder {
+            text-align: center;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        .screenshot-item {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .screenshot-item:hover {
+            transform: scale(1.05);
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .screenshot-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .screenshot-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.6rem;
+            font-size: 0.8rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .no-screenshots {
+            color: #a0aec0;
+            font-style: italic;
+            text-align: center;
+            padding: 1.5rem;
+            background: #f7fafc;
+            border-radius: 10px;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        /* Modal for full-size screenshots */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .header-timestamps {
+                margin-left: 0;
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .stat-card {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .stat-card h3 {
+                font-size: 1.05rem;
+            }
+
+            .screenshots-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <h1>Flutter Self Testing Report</h1>
+                <div class="header-timestamps">
+                    <div class="header-chip">
+                        <span class="chip-label">Run Start</span>
+                        <span class="chip-value">2025-10-28 18:11:06</span>
+                    </div>
+                    <div class="header-chip">
+                        <span class="chip-label">Run End</span>
+                        <span class="chip-value">2025-10-28 18:11:10</span>
+                    </div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-card">
+                    <h3>3</h3>
+                    <p>Total Scenarios</p>
+                </div>
+                <div class="stat-card">
+                    <h3>7</h3>
+                    <p>Total Steps</p>
+                </div>
+                <div class="stat-card passed">
+                    <h3>7</h3>
+                    <p>Steps Passed</p>
+                </div>
+                <div class="stat-card failed">
+                    <h3>0</h3>
+                    <p>Steps Failed</p>
+                </div>
+                <div class="stat-card">
+                    <h3>100.0%</h3>
+                    <p>Success Rate</p>
+                </div>
+                <div class="stat-card">
+                    <h3>4.41s</h3>
+                    <p>Total Duration</p>
+                </div>
+                                <div class="stat-card golden">
+                    <h3>0.00%</h3>
+                    <p>Avg Golden Diff</p>
+                </div>
+        
+            </div>
+        </div>
+
+        <div class="scenario-list">
+                    <div class="scenario-card expandable passed">
+            <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="scenario-title">
+                    <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span>Screen 2 Input Field</span>
+                </div>
+                <div class="scenario-metrics">
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip total"><span class="chip-label">Steps</span><span class="chip-value">2</span></span>
+                        <span class="scenario-chip passed"><span class="chip-label">Passed</span><span class="chip-value">2</span></span>
+                        <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
+                    </div>
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:06</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:09</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">2.85s</span></span>
+                    </div>
+                </div>
+                <div class="scenario-status passed">PASSED</div>
+            </div>
+            <div class="scenario-body">
+                <div class="scenario-steps">
+                            <div class="test-card nested">
+            <div class="test-header passed">
+                <div class="test-name"><span>Navigate to Screen 2</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:06</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">315ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+            
+        </div>
+    
+        <div class="test-card expandable nested">
+            <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Enter and Verify Text</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">2.15s</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+                        <div class="test-body">
+                            <div class="details-section">
+                <div class="details-title">Verification Details</div>
+                <ul>
+                    <li>Screen 2 input preview text → &quot;Nothing typed yet&quot;</li>
+<li>Screen 2 input preview text → &quot;You typed: Hello Flutter&quot;</li>
+                </ul>
+            </div>
+        
+        <div class="golden-section">
+                        <div class="golden-header">
+                <div class="golden-title">Golden Comparison #1</div>
+                                <div class="golden-badge golden-baselinecreated">Baseline Created</div>
+                        </div>
+                        <div class="golden-metrics">
+                                <div><span class="golden-label">Difference:</span> 0.00%</div>
+                                <div><span class="golden-label">Tolerance:</span> 0.10%</div>
+                        </div>
+                                <div class="golden-images">
+                    <div class="golden-image-card" onclick="openModal('screenshots/enter_and_verify_text.png')">
+            <img src="screenshots/enter_and_verify_text.png" alt="Actual image">
+            <div class="golden-image-label">Actual</div>
+        </div>
+    
+        <div class="golden-image-card" onclick="openModal('goldens/enter_and_verify_text.png')">
+            <img src="goldens/enter_and_verify_text.png" alt="Baseline image">
+            <div class="golden-image-label">Baseline</div>
+        </div>
+    
+        <div class="golden-image-card placeholder">
+            <div class="golden-image-placeholder">Diff image will be generated after the next comparison run.</div>
+            <div class="golden-image-label">Diff</div>
+        </div>
+    
+        </div>
+    
+                        <div class="golden-note">A new golden baseline was captured during this run.</div>
+                        <div class="golden-links"><a class="golden-link" href="screenshots/enter_and_verify_text.png" target="_blank">Actual</a><a class="golden-link" href="goldens/enter_and_verify_text.png" target="_blank">Baseline</a></div>
+                        
+                </div>
+        
+        <div class="golden-section">
+                        <div class="golden-header">
+                <div class="golden-title">Golden Comparison #2</div>
+                                <div class="golden-badge golden-baselinecreated">Baseline Created</div>
+                        </div>
+                        <div class="golden-metrics">
+                                <div><span class="golden-label">Difference:</span> 0.00%</div>
+                                <div><span class="golden-label">Tolerance:</span> 0.10%</div>
+                        </div>
+                                <div class="golden-images">
+                    <div class="golden-image-card" onclick="openModal('screenshots/enter_and_verify_text_enter_and_verify_text2.png')">
+            <img src="screenshots/enter_and_verify_text_enter_and_verify_text2.png" alt="Actual image">
+            <div class="golden-image-label">Actual</div>
+        </div>
+    
+        <div class="golden-image-card" onclick="openModal('goldens/enter_and_verify_text_enter_and_verify_text2.png')">
+            <img src="goldens/enter_and_verify_text_enter_and_verify_text2.png" alt="Baseline image">
+            <div class="golden-image-label">Baseline</div>
+        </div>
+    
+        <div class="golden-image-card placeholder">
+            <div class="golden-image-placeholder">Diff image will be generated after the next comparison run.</div>
+            <div class="golden-image-label">Diff</div>
+        </div>
+    
+        </div>
+    
+                        <div class="golden-note">A new golden baseline was captured during this run.</div>
+                        <div class="golden-links"><a class="golden-link" href="screenshots/enter_and_verify_text_enter_and_verify_text2.png" target="_blank">Actual</a><a class="golden-link" href="goldens/enter_and_verify_text_enter_and_verify_text2.png" target="_blank">Baseline</a></div>
+                        
+                </div>
+        
+        <div class="golden-section">
+                        <div class="golden-header">
+                <div class="golden-title">Golden Comparison #3</div>
+                                <div class="golden-badge golden-baselinecreated">Baseline Created</div>
+                        </div>
+                        <div class="golden-metrics">
+                                <div><span class="golden-label">Difference:</span> 0.00%</div>
+                                <div><span class="golden-label">Tolerance:</span> 0.10%</div>
+                        </div>
+                                <div class="golden-images">
+                    <div class="golden-image-card" onclick="openModal('screenshots/enter_and_verify_text_enter_and_verify_text3.png')">
+            <img src="screenshots/enter_and_verify_text_enter_and_verify_text3.png" alt="Actual image">
+            <div class="golden-image-label">Actual</div>
+        </div>
+    
+        <div class="golden-image-card" onclick="openModal('goldens/enter_and_verify_text_enter_and_verify_text3.png')">
+            <img src="goldens/enter_and_verify_text_enter_and_verify_text3.png" alt="Baseline image">
+            <div class="golden-image-label">Baseline</div>
+        </div>
+    
+        <div class="golden-image-card placeholder">
+            <div class="golden-image-placeholder">Diff image will be generated after the next comparison run.</div>
+            <div class="golden-image-label">Diff</div>
+        </div>
+    
+        </div>
+    
+                        <div class="golden-note">A new golden baseline was captured during this run.</div>
+                        <div class="golden-links"><a class="golden-link" href="screenshots/enter_and_verify_text_enter_and_verify_text3.png" target="_blank">Actual</a><a class="golden-link" href="goldens/enter_and_verify_text_enter_and_verify_text3.png" target="_blank">Baseline</a></div>
+                        
+                </div>
+        
+            </div>
+        
+        </div>
+    
+                </div>
+            </div>
+        </div>
+    
+        <div class="scenario-card expandable passed">
+            <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="scenario-title">
+                    <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span>Text Verification</span>
+                </div>
+                <div class="scenario-metrics">
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip total"><span class="chip-label">Steps</span><span class="chip-value">2</span></span>
+                        <span class="scenario-chip passed"><span class="chip-label">Passed</span><span class="chip-value">2</span></span>
+                        <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
+                    </div>
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:09</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:09</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">343ms</span></span>
+                    </div>
+                </div>
+                <div class="scenario-status passed">PASSED</div>
+            </div>
+            <div class="scenario-body">
+                <div class="scenario-steps">
+                            <div class="test-card nested">
+            <div class="test-header passed">
+                <div class="test-name"><span>Verify Screen 1 Texts</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+                        <div class="test-body">
+                            <div class="details-section">
+                <div class="details-title">Verification Details</div>
+                <ul>
+                    <li>Screen 1 title text → &quot;Screen 1&quot;</li>
+<li>Screen 1 greeting text → &quot;Hello World&quot;</li>
+<li>Navigate button label → &quot;Go to Screen 2&quot;</li>
+                </ul>
+            </div>
+        
+            </div>
+        
+        </div>
+    
+        <div class="test-card nested">
+            <div class="test-header passed">
+                <div class="test-name"><span>Verify Screen 2 Texts</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">132ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+                        <div class="test-body">
+                            <div class="details-section">
+                <div class="details-title">Verification Details</div>
+                <ul>
+                    <li>Screen 2 title text → &quot;Screen 2&quot;</li>
+<li>Screen 2 greeting text → &quot;Hello World 2&quot;</li>
+                </ul>
+            </div>
+        
+            </div>
+        
+        </div>
+    
+                </div>
+            </div>
+        </div>
+    
+        <div class="scenario-card expandable passed">
+            <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="scenario-title">
+                    <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span>Navigation Flow</span>
+                </div>
+                <div class="scenario-metrics">
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip total"><span class="chip-label">Steps</span><span class="chip-value">3</span></span>
+                        <span class="scenario-chip passed"><span class="chip-label">Passed</span><span class="chip-value">3</span></span>
+                        <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
+                    </div>
+                    <div class="scenario-chip-group">
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:09</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:10</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1.22s</span></span>
+                    </div>
+                </div>
+                <div class="scenario-status passed">PASSED</div>
+            </div>
+            <div class="scenario-body">
+                <div class="scenario-steps">
+                            <div class="test-card expandable nested">
+            <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Screen 1</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">207ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+                        <div class="test-body">
+                        <div class="golden-section">
+                        <div class="golden-header">
+                <div class="golden-title">Golden Comparison</div>
+                                <div class="golden-badge golden-baselinecreated">Baseline Created</div>
+                        </div>
+                        <div class="golden-metrics">
+                                <div><span class="golden-label">Difference:</span> 0.00%</div>
+                                <div><span class="golden-label">Tolerance:</span> 0.10%</div>
+                        </div>
+                                <div class="golden-images">
+                    <div class="golden-image-card" onclick="openModal('screenshots/screen_1.png')">
+            <img src="screenshots/screen_1.png" alt="Actual image">
+            <div class="golden-image-label">Actual</div>
+        </div>
+    
+        <div class="golden-image-card" onclick="openModal('goldens/screen_1.png')">
+            <img src="goldens/screen_1.png" alt="Baseline image">
+            <div class="golden-image-label">Baseline</div>
+        </div>
+    
+        <div class="golden-image-card placeholder">
+            <div class="golden-image-placeholder">Diff image will be generated after the next comparison run.</div>
+            <div class="golden-image-label">Diff</div>
+        </div>
+    
+        </div>
+    
+                        <div class="golden-note">A new golden baseline was captured during this run.</div>
+                        <div class="golden-links"><a class="golden-link" href="screenshots/screen_1.png" target="_blank">Actual</a><a class="golden-link" href="goldens/screen_1.png" target="_blank">Baseline</a></div>
+                        
+                </div>
+        
+            </div>
+        
+        </div>
+    
+        <div class="test-card nested">
+            <div class="test-header passed">
+                <div class="test-name"><span>Tap Button</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">63ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+            
+        </div>
+    
+        <div class="test-card expandable nested">
+            <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Screen 2</span></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:10</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">222ms</span></span></div>
+                <div class="test-status passed">PASSED</div>
+            </div>
+                        <div class="test-body">
+                        <div class="golden-section">
+                        <div class="golden-header">
+                <div class="golden-title">Golden Comparison</div>
+                                <div class="golden-badge golden-baselinecreated">Baseline Created</div>
+                        </div>
+                        <div class="golden-metrics">
+                                <div><span class="golden-label">Difference:</span> 0.00%</div>
+                                <div><span class="golden-label">Tolerance:</span> 0.10%</div>
+                        </div>
+                                <div class="golden-images">
+                    <div class="golden-image-card" onclick="openModal('screenshots/screen_2.png')">
+            <img src="screenshots/screen_2.png" alt="Actual image">
+            <div class="golden-image-label">Actual</div>
+        </div>
+    
+        <div class="golden-image-card" onclick="openModal('goldens/screen_2.png')">
+            <img src="goldens/screen_2.png" alt="Baseline image">
+            <div class="golden-image-label">Baseline</div>
+        </div>
+    
+        <div class="golden-image-card placeholder">
+            <div class="golden-image-placeholder">Diff image will be generated after the next comparison run.</div>
+            <div class="golden-image-label">Diff</div>
+        </div>
+    
+        </div>
+    
+                        <div class="golden-note">A new golden baseline was captured during this run.</div>
+                        <div class="golden-links"><a class="golden-link" href="screenshots/screen_2.png" target="_blank">Actual</a><a class="golden-link" href="goldens/screen_2.png" target="_blank">Baseline</a></div>
+                        
+                </div>
+        
+            </div>
+        
+        </div>
+    
+                </div>
+            </div>
+        </div>
+    
+        </div>
+
+        <div class="footer">
+            <p>🚀 Generated by Flutter Self Testing Framework</p>
+        </div>
+    </div>
+
+    <!-- Modal for full-size screenshots -->
+    <div class="modal" id="screenshotModal" onclick="closeModal()">
+        <span class="modal-close">&times;</span>
+        <img class="modal-content" id="modalImage">
+    </div>
+
+    <script>
+        function openModal(src) {
+            const modal = document.getElementById('screenshotModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.classList.add('active');
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('screenshotModal');
+            modal.classList.remove('active');
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        document.querySelectorAll('.expandable-header').forEach(function(header) {
+            const card = header.parentElement;
+
+            const toggleCard = function() {
+                const isOpen = card.classList.toggle('open');
+                header.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+                card.querySelectorAll('.test-body, .scenario-body').forEach(function(body) {
+                    if (isOpen) {
+                        body.classList.add('visible');
+                    } else {
+                        body.classList.remove('visible');
+                    }
+                });
+
+                const status = header.querySelector('.test-status, .scenario-status');
+                if (status) {
+                    status.setAttribute('aria-hidden', (!isOpen).toString());
+                }
+            };
+
+            header.addEventListener('click', function() {
+                toggleCard();
+            });
+
+            header.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleCard();
+                }
+            });
+        });
+
+        document.querySelectorAll('.test-card.expandable, .scenario-card.expandable').forEach(function(card) {
+            const hasGoldenMismatch = card.querySelector('.golden-mismatch');
+            if (hasGoldenMismatch) {
+                card.classList.add('open');
+                const header = card.querySelector('.expandable-header');
+                if (header) {
+                    header.setAttribute('aria-expanded', 'true');
+                }
+                card.querySelectorAll('.test-body, .scenario-body').forEach(function(body) {
+                    body.classList.add('visible');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

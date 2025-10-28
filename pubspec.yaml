@@ -1,0 +1,20 @@
+name: self_testing
+description: "A new Flutter package project."
+version: 0.0.1
+#homepage:
+
+environment:
+  sdk: ^3.0.0
+  flutter: ">=3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  diff_image2: ^1.3.1
+  dio: ^5.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
