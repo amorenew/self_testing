@@ -1,39 +1,60 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Visual Robot Testing Harness
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+This project demonstrates a Flutter application instrumented with the Robot Testing Pattern, automated screenshot capture, and golden-diff reporting. Robots encapsulate user flows for each screen, capture visual output, and write metadata that powers an HTML report under `report/`.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## Project Layout
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+- `lib/screens/<screen>/` - concrete screen widgets and their screen-specific robots.
+- `lib/robots/` - shared robot utilities and robot configuration.
+- `lib/scenarios/` - declarative `TestScenario` builders executed by the runner.
+- `lib/screenshot_helper.dart` - handles screenshot capture, golden comparison, and diff image generation.
+- `lib/test_runner.dart` - coordinates the test steps and produces `report/test_results.json`.
+- `report/` - stores screenshots, goldens, diffs, and the generated HTML report.
 
-## Features
+## Running the Visual Tests
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+Launch the Flutter app (desktop or mobile). Tests run after the first frame thanks to `WidgetsBinding.instance.addPostFrameCallback`. Results are logged to the console and aggregated in `report/test_results.json`.
 
-## Getting started
+## Managing Golden Baselines
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+Two `--dart-define` flags control golden behavior:
 
-## Usage
+| Flag | Default | Description |
+| --- | --- | --- |
+| `GOLDEN_TOLERANCE` | `0.1` | Maximum diff percentage allowed before marking a mismatch. |
+| `UPDATE_GOLDENS` | `false` | When `true`, copies the latest screenshots into `report/goldens/` to refresh baselines. |
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Update baselines when UI changes are intentional:
 
-```dart
-const like = 'sample';
+```bash
+flutter run \
+	--dart-define=UPDATE_GOLDENS=true \
+	--dart-define=GOLDEN_TOLERANCE=0.1
 ```
 
-## Additional information
+After the run finishes, revert to a normal configuration (no env overrides) to enforce the refreshed baselines.
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+If you need a different tolerance temporarily (e.g., noisy animations), supply a new value when launching:
+
+```bash
+flutter run --dart-define=GOLDEN_TOLERANCE=0.15
+```
+
+## Viewing the HTML Report
+
+When local storage is enabled (`ScreenshotHelper.useLocalStorage = true`), the test runner generates `report/test_results.json`. The HTML report is available at `report/test_report.html`, showing pass/fail status, diffs, and screenshots side-by-side.
+
+### Grouping Scenarios
+
+- Wrap related steps in a `TestScenario` to group user journeys.
+- Each scenario collapses in the HTML report, with nested cards for individual steps.
+- Scenario metadata (start/end/duration) rolls up in `test_results.json` alongside per-step details.
+
+## Robot Pattern Overview
+
+- **Keep robots focused.** Each robot targets one screen/component.
+- **Expose verifications.** Robots assert UI state via `verifyWidgetExists`, etc.
+- **Support method chaining.** All robot actions return the robot instance for fluent flows.
+- **Handle async waits.** Use `waitForLoad`, `waitUntil`, and `tapAndWait` to cover transitions.
+
+Refer to `lib/robots/base_robot.dart` for shared utilities and to `lib/screens/screen1/screen1_robot.dart` / `lib/screens/screen2/screen2_robot.dart` for concrete examples.
