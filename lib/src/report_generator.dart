@@ -27,23 +27,19 @@ class ReportGenerator {
 
   static String _buildHtml(List<Map<String, dynamic>> results) {
     final scenarios = results;
-    final allSteps = scenarios
-        .map(_extractSteps)
-        .expand((steps) => steps)
-        .toList();
+    final allSteps =
+        scenarios.map(_extractSteps).expand((steps) => steps).toList();
 
     final totalTests = allSteps.length;
-    final passedTests = allSteps
-        .where((step) => step['status'] == 'passed')
-        .length;
+    final passedTests =
+        allSteps.where((step) => step['status'] == 'passed').length;
     final failedTests = totalTests - passedTests;
     final successRate = totalTests > 0
         ? (passedTests / totalTests * 100).toStringAsFixed(1)
         : '0.0';
 
-    final scenarioCards = scenarios
-        .map((scenario) => _buildScenarioCard(scenario))
-        .join('\n');
+    final scenarioCards =
+        scenarios.map((scenario) => _buildScenarioCard(scenario)).join('\n');
 
     final totalScenarios = scenarios.length;
     final runStart = _findBoundaryTimestamp(
@@ -56,25 +52,22 @@ class ReportGenerator {
       'endedAt',
       findEarliest: false,
     );
-    final runStartLabel = runStart != null
-        ? _formatDateTime(runStart.toIso8601String())
-        : 'N/A';
-    final runEndLabel = runEnd != null
-        ? _formatDateTime(runEnd.toIso8601String())
-        : 'N/A';
+    final runStartLabel =
+        runStart != null ? _formatDateTime(runStart.toIso8601String()) : 'N/A';
+    final runEndLabel =
+        runEnd != null ? _formatDateTime(runEnd.toIso8601String()) : 'N/A';
 
     final hasDurationData = scenarios.any(
       (scenario) => scenario['durationMs'] != null,
     );
     final totalDurationMs = hasDurationData
         ? scenarios
-              .map((scenario) => scenario['durationMs'])
-              .whereType<num>()
-              .fold<int>(0, (sum, value) => sum + value.toInt())
+            .map((scenario) => scenario['durationMs'])
+            .whereType<num>()
+            .fold<int>(0, (sum, value) => sum + value.toInt())
         : 0;
-    final totalDurationLabel = hasDurationData
-        ? _formatDuration(totalDurationMs)
-        : 'N/A';
+    final totalDurationLabel =
+        hasDurationData ? _formatDuration(totalDurationMs) : 'N/A';
 
     final goldenEntries = allSteps
         .map((step) => _normalizeGoldenEntries(step['golden']))
@@ -1163,9 +1156,8 @@ class ReportGenerator {
     final steps = _extractSteps(scenario);
     final status = (scenario['status'] ?? 'unknown').toString();
     final scenarioName = (scenario['name'] ?? 'Scenario').toString();
-    final passedSteps = steps
-        .where((step) => step['status'] == 'passed')
-        .length;
+    final passedSteps =
+        steps.where((step) => step['status'] == 'passed').length;
     final failedSteps = steps.length - passedSteps;
     final durationValue = scenario['durationMs'];
     final durationMs = durationValue is num ? durationValue.toInt() : null;
@@ -1227,9 +1219,9 @@ class ReportGenerator {
     final rawDetails = result['details'];
     final details = rawDetails is List
         ? rawDetails
-              .map((value) => value.toString())
-              .where((value) => value.trim().isNotEmpty)
-              .toList()
+            .map((value) => value.toString())
+            .where((value) => value.trim().isNotEmpty)
+            .toList()
         : const <String>[];
 
     final hasScreenshots = screenshots.isNotEmpty;
@@ -1237,9 +1229,8 @@ class ReportGenerator {
     final showScreenshots = hasScreenshots && !hasGolden;
     final isExpandable = showScreenshots || hasGolden;
 
-    final finishedAt = timestamp.isNotEmpty
-        ? _formatDateTime(timestamp)
-        : 'N/A';
+    final finishedAt =
+        timestamp.isNotEmpty ? _formatDateTime(timestamp) : 'N/A';
     final durationLabel = _formatDuration(durationMs);
 
     final errorSection = error != null
@@ -1350,9 +1341,8 @@ class ReportGenerator {
         boundary = parsed;
         continue;
       }
-      final shouldReplace = findEarliest
-          ? parsed.isBefore(boundary)
-          : parsed.isAfter(boundary);
+      final shouldReplace =
+          findEarliest ? parsed.isBefore(boundary) : parsed.isAfter(boundary);
       if (shouldReplace) {
         boundary = parsed;
       }
@@ -1535,8 +1525,8 @@ class ReportGenerator {
       final statusSlug = _statusToSlug((golden['status'] ?? '').toString());
       final message =
           statusSlug == 'baselinecreated' || statusSlug == 'baselineupdated'
-          ? 'Diff image will be generated after the next comparison run.'
-          : 'Diff image not available.';
+              ? 'Diff image will be generated after the next comparison run.'
+              : 'Diff image not available.';
       cards.add(_goldenImagePlaceholder('Diff', message));
     }
 
