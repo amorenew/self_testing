@@ -17,8 +17,8 @@ void main() {
   final updateGoldens = const bool.fromEnvironment('UPDATE_GOLDENS');
 
   SelfTesting.initialize(
-    navigatorKey: AppKeys.navigator,
-    screenshotKey: AppKeys.screenshot,
+    navigatorKey: AppKeys.navigator.key,
+    screenshotKey: AppKeys.screenshot.key,
     useLocalStorage: true,
     updateGoldenBaselines: updateGoldens,
     goldenDiffTolerance: goldenDiffTolerance,
@@ -45,9 +45,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      key: AppKeys.screenshot,
+      key: AppKeys.screenshot.key,
       child: MaterialApp(
-        navigatorKey: AppKeys.navigator,
+        navigatorKey: AppKeys.navigator.key,
         home: const Screen1Page(),
       ),
     );

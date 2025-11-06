@@ -10,7 +10,7 @@ class Screen1Page extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: KeyedSubtree(
-          key: AppKeys.screen1Title,
+          key: AppKeys.screen1Title.key,
           child: const Text('Screen 1'),
         ),
       ),
@@ -19,12 +19,12 @@ class Screen1Page extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             KeyedSubtree(
-              key: AppKeys.screen1Greeting,
+              key: AppKeys.screen1Greeting.key,
               child: const Text('Hello World', style: TextStyle(fontSize: 24)),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              key: AppKeys.navigateButton,
+              key: AppKeys.navigateButton.key,
               onPressed: () {
                 Navigator.push(
                   context,

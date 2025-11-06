@@ -9,14 +9,20 @@ class Screen2Robot extends BaseRobot<Screen2Robot> {
   final BuildContext? context;
 
   Screen2Robot verifyScreen2Displayed() {
-    verifyWidgetExists(AppKeys.screen2Title, label: 'Screen 2 title');
-    verifyWidgetExists(AppKeys.screen2Greeting, label: 'Screen 2 greeting');
     verifyWidgetExists(
-      AppKeys.screen2InputField,
+      AppKeys.screen2Title.currentKey,
+      label: 'Screen 2 title',
+    );
+    verifyWidgetExists(
+      AppKeys.screen2Greeting.currentKey,
+      label: 'Screen 2 greeting',
+    );
+    verifyWidgetExists(
+      AppKeys.screen2InputField.currentKey,
       label: 'Screen 2 input field',
     );
     verifyWidgetExists(
-      AppKeys.screen2InputPreview,
+      AppKeys.screen2InputPreview.currentKey,
       label: 'Screen 2 input preview',
     );
     debugPrint('✅ Screen 2 is displayed correctly');
@@ -24,23 +30,21 @@ class Screen2Robot extends BaseRobot<Screen2Robot> {
   }
 
   Future<Screen2Robot> verifyAndCapture(String screenshotName) async {
-    await waitForLoad(readyKey: AppKeys.screen2Title);
+    await waitForLoad(readyKey: AppKeys.screen2Title.currentKey);
     verifyScreen2Displayed();
     await captureScreenshot(screenshotName);
     return this;
   }
 
-  Future<Screen2Robot> enterMessage(String text) {
-    return enterText(
-      AppKeys.screen2InputField,
-      text,
-      label: 'Screen 2 input field',
-    );
-  }
+  Future<Screen2Robot> enterMessage(String text) => enterText(
+    AppKeys.screen2InputField.currentKey,
+    text,
+    label: 'Screen 2 input field',
+  );
 
   Screen2Robot verifyPreview(String expectedText) {
     verifyTextEquals(
-      AppKeys.screen2InputPreview,
+      AppKeys.screen2InputPreview.currentKey,
       expectedText,
       label: 'Screen 2 input preview text',
     );

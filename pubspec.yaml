@@ -1,6 +1,6 @@
 name: self_testing
 description: "A testing framework for in-app testing without external tools"
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/amorenew/self_testing
 
 environment:

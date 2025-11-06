@@ -9,18 +9,20 @@ class Screen1Robot extends BaseRobot<Screen1Robot> {
   final BuildContext? context;
 
   Screen1Robot verifyScreen1Displayed() {
-    verifyWidgetExists(AppKeys.screen1Title, label: 'Screen 1 title');
-    verifyWidgetExists(AppKeys.screen1Greeting, label: 'Screen 1 greeting');
-    verifyWidgetExists(AppKeys.navigateButton, label: 'Navigate button');
+    verifyWidgetExists(AppKeys.screen1Title.currentKey, label: 'Screen 1 title');
+    verifyWidgetExists(AppKeys.screen1Greeting.currentKey, label: 'Screen 1 greeting');
+    verifyWidgetExists(AppKeys.navigateButton.currentKey, label: 'Navigate button');
     debugPrint('✅ Screen 1 is displayed correctly');
     return this;
   }
 
   Future<Screen1Robot> tapNavigateButton() async {
+    AppKeys.regenerateScreen2Keys();
+    final nextScreenTitleKey = AppKeys.screen2Title.currentKey;
     return tapAndWait(
-      AppKeys.navigateButton,
+      AppKeys.navigateButton.currentKey,
       label: 'Navigate button',
-      waitForKey: AppKeys.screen2Title,
+      waitForKey: nextScreenTitleKey,
     );
   }
 

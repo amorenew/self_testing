@@ -196,15 +196,16 @@
             gap: 0.55rem;
             border-bottom: 2px solid #e2e8f0;
             flex-wrap: wrap;
+            justify-content: flex-start;
         }
 
         .scenario-metrics {
             display: flex;
-            flex: 1 1 320px;
             align-items: center;
             justify-content: flex-end;
             gap: 0.5rem;
             flex-wrap: wrap;
+            margin-left: auto;
         }
 
         .scenario-chip-group {
@@ -286,13 +287,13 @@
         }
 
         .scenario-title {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.65rem;
+            gap: 0.4rem;
             font-size: 1.05rem;
             font-weight: 600;
             color: #1a202c;
-            flex: 0 1 220px;
+            flex: 0 1 auto;
         }
 
         .scenario-toggle-icon {
@@ -310,6 +311,51 @@
             transform: rotate(90deg);
         }
 
+        .copy-button {
+            border: none;
+            background: rgba(76, 81, 191, 0.12);
+            color: #4c51bf;
+            width: 1.2rem;
+            height: 1.2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(76, 81, 191, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .copy-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.35);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .scenario-title .copy-button,
+        .test-name .copy-button,
+        .details-section summary .copy-button,
+        .error-title .copy-button {
+            margin-left: 0.35rem;
+            flex: 0 0 auto;
+        }
+
+        .scenario-title-text,
+        .test-name-text,
+        .error-title-text {
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
         .scenario-status {
             display: inline-flex;
             align-items: center;
@@ -320,7 +366,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
             font-size: 0.62rem;
-            margin-left: auto;
+            margin-left: 0.4rem;
             min-width: 4.5rem;
             justify-content: center;
         }
@@ -374,7 +420,7 @@
             padding: 0.55rem 0.9rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 0.6rem;
             flex-wrap: wrap;
             border-bottom: 2px solid #e2e8f0;
@@ -394,10 +440,11 @@
             font-size: 0.95rem;
             font-weight: 600;
             color: #2d3748;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            flex: 1 1 220px;
+            gap: 0.35rem;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .test-toggle-icon {
@@ -421,6 +468,7 @@
             align-items: center;
             gap: 0.35rem;
             flex-wrap: wrap;
+            margin-left: auto;
         }
 
         .test-status {
@@ -433,6 +481,7 @@
             font-size: 0.64rem;
             text-transform: uppercase;
             letter-spacing: 0.55px;
+            margin-left: 0.4rem;
         }
 
         .test-status.passed {
@@ -494,30 +543,65 @@
             margin-top: 1rem;
             background: #edf2f7;
             border-radius: 12px;
-            padding: 0.9rem 1.1rem;
             border: 1px solid #e2e8f0;
+            overflow: hidden;
         }
 
-        .details-title {
+        .details-section summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.45rem;
+        }
+
+        .details-section summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .details-toggle-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            color: #4c51bf;
+            font-size: 0.8rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .details-section[open] .details-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .details-summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
             font-size: 0.9rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 0.6rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
-        .details-title::before {
+        .details-summary::before {
             content: '📝';
+        }
+
+        .details-section[open] summary {
+            border-bottom: 1px solid #cbd5e0;
+            background: rgba(148, 163, 184, 0.15);
         }
 
         .details-section ul {
             list-style: disc;
-            margin-left: 1.5rem;
+            margin: 0;
+            padding: 0.85rem 1.2rem 1.1rem 2.2rem;
             color: #4a5568;
             display: grid;
-            gap: 0.3rem;
+            gap: 0.35rem;
         }
 
         .error-title {
@@ -527,6 +611,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            justify-content: flex-start;
         }
 
         .error-title::before {
@@ -911,11 +996,11 @@
                 <div class="header-timestamps">
                     <div class="header-chip">
                         <span class="chip-label">Run Start</span>
-                        <span class="chip-value">2025-10-28 18:11:06</span>
+                        <span class="chip-value">2025-11-06 21:53:55</span>
                     </div>
                     <div class="header-chip">
                         <span class="chip-label">Run End</span>
-                        <span class="chip-value">2025-10-28 18:11:10</span>
+                        <span class="chip-value">2025-11-06 21:53:59</span>
                     </div>
                 </div>
             </div>
@@ -929,19 +1014,19 @@
                     <p>Total Steps</p>
                 </div>
                 <div class="stat-card passed">
-                    <h3>7</h3>
+                    <h3>6</h3>
                     <p>Steps Passed</p>
                 </div>
                 <div class="stat-card failed">
-                    <h3>0</h3>
+                    <h3>1</h3>
                     <p>Steps Failed</p>
                 </div>
                 <div class="stat-card">
-                    <h3>100.0%</h3>
+                    <h3>85.7%</h3>
                     <p>Success Rate</p>
                 </div>
                 <div class="stat-card">
-                    <h3>4.41s</h3>
+                    <h3>3.95s</h3>
                     <p>Total Duration</p>
                 </div>
                                 <div class="stat-card golden">
@@ -957,7 +1042,8 @@
             <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="scenario-title">
                     <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
-                    <span>Screen 2 Input Field</span>
+                    <span class="scenario-title-text">Screen 2 Input Field</span>
+                    <button class="copy-button" type="button" aria-label="Copy scenario title" data-copy="Screen 2 Input Field">📋</button>
                 </div>
                 <div class="scenario-metrics">
                     <div class="scenario-chip-group">
@@ -966,9 +1052,9 @@
                         <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
                     </div>
                     <div class="scenario-chip-group">
-                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:06</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:09</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">2.85s</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-11-06 21:53:55</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-11-06 21:53:57</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">2.36s</span></span>
                     </div>
                 </div>
                 <div class="scenario-status passed">PASSED</div>
@@ -977,27 +1063,69 @@
                 <div class="scenario-steps">
                             <div class="test-card nested">
             <div class="test-header passed">
-                <div class="test-name"><span>Navigate to Screen 2</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:06</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">315ms</span></span></div>
+                <div class="test-name"><span class="test-name-text">Navigate to Screen 2</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Navigate to Screen 2">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:55</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">313ms</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
-            
+                        <div class="test-body">
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Navigate to Screen 2&#10;- Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Screen 1 title&#10;- Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Screen 1 greeting&#10;- Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Navigate button&#10;- Navigate to Screen 2 › Screen1Robot → Tap and wait → Navigate button&#10;- Navigate to Screen 2 › Screen1Robot → Tapping → Navigate button&#10;- Navigate to Screen 2 › Screen1Robot → Waiting for widget to appear → [GlobalKey#d69e1 screen2Title]&#10;- Step passed → Navigate to Screen 2">📋</button>
+                </summary>
+                <ul>
+                    <li>Step started → Navigate to Screen 2</li>
+<li>Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Screen 1 title</li>
+<li>Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Screen 1 greeting</li>
+<li>Navigate to Screen 2 › Screen1Robot → Verifying widget exists → Navigate button</li>
+<li>Navigate to Screen 2 › Screen1Robot → Tap and wait → Navigate button</li>
+<li>Navigate to Screen 2 › Screen1Robot → Tapping → Navigate button</li>
+<li>Navigate to Screen 2 › Screen1Robot → Waiting for widget to appear → [GlobalKey#d69e1 screen2Title]</li>
+<li>Step passed → Navigate to Screen 2</li>
+                </ul>
+            </details>
+        
+            </div>
+        
         </div>
     
         <div class="test-card expandable nested">
             <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
-                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Enter and Verify Text</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">2.15s</span></span></div>
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span class="test-name-text">Enter and Verify Text</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Enter and Verify Text">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:57</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1.62s</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
                         <div class="test-body">
-                            <div class="details-section">
-                <div class="details-title">Verification Details</div>
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Enter and Verify Text&#10;- Enter and Verify Text › Screen2Robot → Waiting for screen load using key → [GlobalKey#d69e1 screen2Title]&#10;- Enter and Verify Text › Screen2Robot → Waiting for widget to appear → [GlobalKey#d69e1 screen2Title]&#10;- Enter and Verify Text › Screen2Robot → Verifying text equals &quot;Nothing typed yet&quot; → Screen 2 input preview text&#10;- Enter and Verify Text › Screen2Robot → Verifying widget exists → Screen 2 input preview text&#10;- Screen 2 input preview text → &quot;Nothing typed yet&quot;&#10;- Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter&quot; → Screen 2 input field&#10;- Enter and Verify Text › Screen2Robot → Verifying text equals &quot;You typed: Hello Flutter&quot; → Screen 2 input preview text&#10;- Enter and Verify Text › Screen2Robot → Verifying widget exists → Screen 2 input preview text&#10;- Screen 2 input preview text → &quot;You typed: Hello Flutter&quot;&#10;- Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text&quot;&#10;- Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter2&quot; → Screen 2 input field&#10;- Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text_enter_and_verify_text2&quot;&#10;- Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter3&quot; → Screen 2 input field&#10;- Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text_enter_and_verify_text3&quot;&#10;- Enter and Verify Text › Screen2Robot → Navigating back (awaiting [GlobalKey#d69e1 screen2Title])&#10;- Enter and Verify Text › Screen2Robot → Waiting for widget to disappear → [GlobalKey#d69e1 screen2Title]&#10;- Enter and Verify Text › Screen1Robot → Waiting for screen load using key → [GlobalKey#e963e screen1Title]&#10;- Enter and Verify Text › Screen1Robot → Waiting for widget to appear → [GlobalKey#e963e screen1Title]&#10;- Step passed → Enter and Verify Text">📋</button>
+                </summary>
                 <ul>
-                    <li>Screen 2 input preview text → &quot;Nothing typed yet&quot;</li>
+                    <li>Step started → Enter and Verify Text</li>
+<li>Enter and Verify Text › Screen2Robot → Waiting for screen load using key → [GlobalKey#d69e1 screen2Title]</li>
+<li>Enter and Verify Text › Screen2Robot → Waiting for widget to appear → [GlobalKey#d69e1 screen2Title]</li>
+<li>Enter and Verify Text › Screen2Robot → Verifying text equals &quot;Nothing typed yet&quot; → Screen 2 input preview text</li>
+<li>Enter and Verify Text › Screen2Robot → Verifying widget exists → Screen 2 input preview text</li>
+<li>Screen 2 input preview text → &quot;Nothing typed yet&quot;</li>
+<li>Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter&quot; → Screen 2 input field</li>
+<li>Enter and Verify Text › Screen2Robot → Verifying text equals &quot;You typed: Hello Flutter&quot; → Screen 2 input preview text</li>
+<li>Enter and Verify Text › Screen2Robot → Verifying widget exists → Screen 2 input preview text</li>
 <li>Screen 2 input preview text → &quot;You typed: Hello Flutter&quot;</li>
+<li>Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text&quot;</li>
+<li>Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter2&quot; → Screen 2 input field</li>
+<li>Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text_enter_and_verify_text2&quot;</li>
+<li>Enter and Verify Text › Screen2Robot → Entered &quot;Hello Flutter3&quot; → Screen 2 input field</li>
+<li>Enter and Verify Text › Screen2Robot → Capturing screenshot &quot;enter_and_verify_text_enter_and_verify_text3&quot;</li>
+<li>Enter and Verify Text › Screen2Robot → Navigating back (awaiting [GlobalKey#d69e1 screen2Title])</li>
+<li>Enter and Verify Text › Screen2Robot → Waiting for widget to disappear → [GlobalKey#d69e1 screen2Title]</li>
+<li>Enter and Verify Text › Screen1Robot → Waiting for screen load using key → [GlobalKey#e963e screen1Title]</li>
+<li>Enter and Verify Text › Screen1Robot → Waiting for widget to appear → [GlobalKey#e963e screen1Title]</li>
+<li>Step passed → Enter and Verify Text</li>
                 </ul>
-            </div>
+            </details>
         
         <div class="golden-section">
                         <div class="golden-header">
@@ -1103,61 +1231,97 @@
             </div>
         </div>
     
-        <div class="scenario-card expandable passed">
-            <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
+        <div class="scenario-card expandable failed">
+            <div class="scenario-header failed expandable-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="scenario-title">
                     <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
-                    <span>Text Verification</span>
+                    <span class="scenario-title-text">Text Verification</span>
+                    <button class="copy-button" type="button" aria-label="Copy scenario title" data-copy="Text Verification">📋</button>
                 </div>
                 <div class="scenario-metrics">
                     <div class="scenario-chip-group">
                         <span class="scenario-chip total"><span class="chip-label">Steps</span><span class="chip-value">2</span></span>
-                        <span class="scenario-chip passed"><span class="chip-label">Passed</span><span class="chip-value">2</span></span>
-                        <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
+                        <span class="scenario-chip passed"><span class="chip-label">Passed</span><span class="chip-value">1</span></span>
+                        <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">1</span></span>
                     </div>
                     <div class="scenario-chip-group">
-                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:09</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:09</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">343ms</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-11-06 21:53:57</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-11-06 21:53:58</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">704ms</span></span>
                     </div>
                 </div>
-                <div class="scenario-status passed">PASSED</div>
+                <div class="scenario-status failed">FAILED</div>
             </div>
             <div class="scenario-body">
                 <div class="scenario-steps">
                             <div class="test-card nested">
             <div class="test-header passed">
-                <div class="test-name"><span>Verify Screen 1 Texts</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1ms</span></span></div>
+                <div class="test-name"><span class="test-name-text">Verify Screen 1 Texts</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Verify Screen 1 Texts">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:57</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1ms</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
                         <div class="test-body">
-                            <div class="details-section">
-                <div class="details-title">Verification Details</div>
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Verify Screen 1 Texts&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Screen 1&quot; → Screen 1 title text&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Screen 1 title text&#10;- Screen 1 title text → &quot;Screen 1&quot;&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Hello World&quot; → Screen 1 greeting text&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Screen 1 greeting text&#10;- Screen 1 greeting text → &quot;Hello World&quot;&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Go to Screen 2&quot; → Navigate button label&#10;- Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Navigate button label&#10;- Navigate button label → &quot;Go to Screen 2&quot;&#10;- Step passed → Verify Screen 1 Texts">📋</button>
+                </summary>
                 <ul>
-                    <li>Screen 1 title text → &quot;Screen 1&quot;</li>
+                    <li>Step started → Verify Screen 1 Texts</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Screen 1&quot; → Screen 1 title text</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Screen 1 title text</li>
+<li>Screen 1 title text → &quot;Screen 1&quot;</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Hello World&quot; → Screen 1 greeting text</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Screen 1 greeting text</li>
 <li>Screen 1 greeting text → &quot;Hello World&quot;</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying text equals &quot;Go to Screen 2&quot; → Navigate button label</li>
+<li>Verify Screen 1 Texts › Screen1Robot → Verifying widget exists → Navigate button label</li>
 <li>Navigate button label → &quot;Go to Screen 2&quot;</li>
+<li>Step passed → Verify Screen 1 Texts</li>
                 </ul>
-            </div>
+            </details>
         
             </div>
         
         </div>
     
         <div class="test-card nested">
-            <div class="test-header passed">
-                <div class="test-name"><span>Verify Screen 2 Texts</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">132ms</span></span></div>
-                <div class="test-status passed">PASSED</div>
+            <div class="test-header failed">
+                <div class="test-name"><span class="test-name-text">Verify Screen 2 Texts</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Verify Screen 2 Texts">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:57</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">73ms</span></span></div>
+                <div class="test-status failed">FAILED</div>
             </div>
                         <div class="test-body">
-                            <div class="details-section">
-                <div class="details-title">Verification Details</div>
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Verify Screen 2 Texts&#10;- Verify Screen 2 Texts › Screen1Robot → Tap and wait → Navigate button&#10;- Verify Screen 2 Texts › Screen1Robot → Tapping → Navigate button&#10;- Verify Screen 2 Texts › Screen1Robot → Waiting for widget to appear → [GlobalKey#748d0 screen2Title]&#10;- Verify Screen 2 Texts › Screen2Robot → Waiting for screen load using key → [GlobalKey#748d0 screen2Title]&#10;- Verify Screen 2 Texts › Screen2Robot → Waiting for widget to appear → [GlobalKey#748d0 screen2Title]&#10;- Verify Screen 2 Texts › Screen2Robot → Verifying text equals &quot;Screen 2&quot; → Screen 2 title text&#10;- Verify Screen 2 Texts › Screen2Robot → Verifying widget exists → Screen 2 title text&#10;- Screen 2 title text → &quot;Screen 2&quot;&#10;- Verify Screen 2 Texts › Screen2Robot → Verifying text equals &quot;Hello World 2&quot; → Screen 2 greeting text&#10;- Verify Screen 2 Texts › Screen2Robot → Verifying widget exists → Screen 2 greeting text&#10;- Verify Screen 2 Texts › Screen2Robot → Verification failed → Screen 2 greeting text expected &quot;Hello World 2&quot; but found &quot;Hello Wold 2&quot;&#10;- Step failed → Verify Screen 2 Texts: Assertion failed: &quot;Verification failed: Screen 2 greeting text expected \&quot;Hello World 2\&quot; but found \&quot;Hello Wold 2\&quot;&quot;">📋</button>
+                </summary>
                 <ul>
-                    <li>Screen 2 title text → &quot;Screen 2&quot;</li>
-<li>Screen 2 greeting text → &quot;Hello World 2&quot;</li>
+                    <li>Step started → Verify Screen 2 Texts</li>
+<li>Verify Screen 2 Texts › Screen1Robot → Tap and wait → Navigate button</li>
+<li>Verify Screen 2 Texts › Screen1Robot → Tapping → Navigate button</li>
+<li>Verify Screen 2 Texts › Screen1Robot → Waiting for widget to appear → [GlobalKey#748d0 screen2Title]</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Waiting for screen load using key → [GlobalKey#748d0 screen2Title]</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Waiting for widget to appear → [GlobalKey#748d0 screen2Title]</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Verifying text equals &quot;Screen 2&quot; → Screen 2 title text</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Verifying widget exists → Screen 2 title text</li>
+<li>Screen 2 title text → &quot;Screen 2&quot;</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Verifying text equals &quot;Hello World 2&quot; → Screen 2 greeting text</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Verifying widget exists → Screen 2 greeting text</li>
+<li>Verify Screen 2 Texts › Screen2Robot → Verification failed → Screen 2 greeting text expected &quot;Hello World 2&quot; but found &quot;Hello Wold 2&quot;</li>
+<li>Step failed → Verify Screen 2 Texts: Assertion failed: &quot;Verification failed: Screen 2 greeting text expected \&quot;Hello World 2\&quot; but found \&quot;Hello Wold 2\&quot;&quot;</li>
                 </ul>
+            </details>
+        
+            <div class="error-section">
+                <div class="error-title">
+                    <span class="error-title-text">Error Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy error details" data-copy="Error Details&#10;Assertion failed: &quot;Verification failed: Screen 2 greeting text expected \&quot;Hello World 2\&quot; but found \&quot;Hello Wold 2\&quot;&quot;">📋</button>
+                </div>
+                <div class="error-message">Assertion failed: &quot;Verification failed: Screen 2 greeting text expected \&quot;Hello World 2\&quot; but found \&quot;Hello Wold 2\&quot;&quot;</div>
             </div>
         
             </div>
@@ -1172,7 +1336,8 @@
             <div class="scenario-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="scenario-title">
                     <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
-                    <span>Navigation Flow</span>
+                    <span class="scenario-title-text">Navigation Flow</span>
+                    <button class="copy-button" type="button" aria-label="Copy scenario title" data-copy="Navigation Flow">📋</button>
                 </div>
                 <div class="scenario-metrics">
                     <div class="scenario-chip-group">
@@ -1181,9 +1346,9 @@
                         <span class="scenario-chip failed"><span class="chip-label">Failed</span><span class="chip-value">0</span></span>
                     </div>
                     <div class="scenario-chip-group">
-                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-10-28 18:11:09</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-10-28 18:11:10</span></span>
-                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">1.22s</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Start</span><span class="chip-value">2025-11-06 21:53:58</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">End</span><span class="chip-value">2025-11-06 21:53:59</span></span>
+                        <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">886ms</span></span>
                     </div>
                 </div>
                 <div class="scenario-status passed">PASSED</div>
@@ -1192,12 +1357,28 @@
                 <div class="scenario-steps">
                             <div class="test-card expandable nested">
             <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
-                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Screen 1</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">207ms</span></span></div>
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span class="test-name-text">Screen 1</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Screen 1">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:58</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">33ms</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
                         <div class="test-body">
-                        <div class="golden-section">
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Screen 1&#10;- Screen 1 › Screen1Robot → Verifying widget exists → Screen 1 title&#10;- Screen 1 › Screen1Robot → Verifying widget exists → Screen 1 greeting&#10;- Screen 1 › Screen1Robot → Verifying widget exists → Navigate button&#10;- Screen 1 › Screen1Robot → Capturing screenshot &quot;screen_1&quot;&#10;- Step passed → Screen 1">📋</button>
+                </summary>
+                <ul>
+                    <li>Step started → Screen 1</li>
+<li>Screen 1 › Screen1Robot → Verifying widget exists → Screen 1 title</li>
+<li>Screen 1 › Screen1Robot → Verifying widget exists → Screen 1 greeting</li>
+<li>Screen 1 › Screen1Robot → Verifying widget exists → Navigate button</li>
+<li>Screen 1 › Screen1Robot → Capturing screenshot &quot;screen_1&quot;</li>
+<li>Step passed → Screen 1</li>
+                </ul>
+            </details>
+        
+        <div class="golden-section">
                         <div class="golden-header">
                 <div class="golden-title">Golden Comparison</div>
                                 <div class="golden-badge golden-baselinecreated">Baseline Created</div>
@@ -1235,21 +1416,57 @@
     
         <div class="test-card nested">
             <div class="test-header passed">
-                <div class="test-name"><span>Tap Button</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:09</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">63ms</span></span></div>
+                <div class="test-name"><span class="test-name-text">Tap Button</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Tap Button">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:58</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">64ms</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
-            
+                        <div class="test-body">
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Tap Button&#10;- Tap Button › Screen1Robot → Tap and wait → Navigate button&#10;- Tap Button › Screen1Robot → Tapping → Navigate button&#10;- Tap Button › Screen1Robot → Waiting for widget to appear → [GlobalKey#d1d2f screen2Title]&#10;- Step passed → Tap Button">📋</button>
+                </summary>
+                <ul>
+                    <li>Step started → Tap Button</li>
+<li>Tap Button › Screen1Robot → Tap and wait → Navigate button</li>
+<li>Tap Button › Screen1Robot → Tapping → Navigate button</li>
+<li>Tap Button › Screen1Robot → Waiting for widget to appear → [GlobalKey#d1d2f screen2Title]</li>
+<li>Step passed → Tap Button</li>
+                </ul>
+            </details>
+        
+            </div>
+        
         </div>
     
         <div class="test-card expandable nested">
             <div class="test-header passed expandable-header" role="button" tabindex="0" aria-expanded="false">
-                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span>Screen 2</span></div>
-                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-10-28 18:11:10</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">222ms</span></span></div>
+                <div class="test-name"><span class="test-toggle-icon" aria-hidden="true">&#9654;</span><span class="test-name-text">Screen 2</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="Screen 2">📋</button></div>
+                <div class="test-meta"><span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">2025-11-06 21:53:59</span></span> <span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">44ms</span></span></div>
                 <div class="test-status passed">PASSED</div>
             </div>
                         <div class="test-body">
-                        <div class="golden-section">
+                            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="Verification Details&#10;- Step started → Screen 2&#10;- Screen 2 › Screen2Robot → Waiting for screen load using key → [GlobalKey#d1d2f screen2Title]&#10;- Screen 2 › Screen2Robot → Waiting for widget to appear → [GlobalKey#d1d2f screen2Title]&#10;- Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 title&#10;- Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 greeting&#10;- Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 input field&#10;- Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 input preview&#10;- Screen 2 › Screen2Robot → Capturing screenshot &quot;screen_2&quot;&#10;- Step passed → Screen 2">📋</button>
+                </summary>
+                <ul>
+                    <li>Step started → Screen 2</li>
+<li>Screen 2 › Screen2Robot → Waiting for screen load using key → [GlobalKey#d1d2f screen2Title]</li>
+<li>Screen 2 › Screen2Robot → Waiting for widget to appear → [GlobalKey#d1d2f screen2Title]</li>
+<li>Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 title</li>
+<li>Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 greeting</li>
+<li>Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 input field</li>
+<li>Screen 2 › Screen2Robot → Verifying widget exists → Screen 2 input preview</li>
+<li>Screen 2 › Screen2Robot → Capturing screenshot &quot;screen_2&quot;</li>
+<li>Step passed → Screen 2</li>
+                </ul>
+            </details>
+        
+        <div class="golden-section">
                         <div class="golden-header">
                 <div class="golden-title">Golden Comparison</div>
                                 <div class="golden-badge golden-baselinecreated">Baseline Created</div>
@@ -1322,6 +1539,83 @@
             }
         });
 
+        function fallbackCopy(text, onSuccess, onFailure) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (successful) {
+                    onSuccess();
+                } else {
+                    onFailure();
+                }
+            } catch (error) {
+                onFailure();
+            }
+        }
+
+        function setupCopyButtons() {
+            document.querySelectorAll('.copy-button').forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const targetId = button.getAttribute('data-copy-target');
+                    let text = '';
+
+                    if (targetId) {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            text = targetElement.textContent || '';
+                        }
+                    } else {
+                        text = button.getAttribute('data-copy') || '';
+                    }
+
+                    if (!text) {
+                        return;
+                    }
+
+                    const originalIcon = button.getAttribute('data-icon') || button.innerHTML;
+                    const originalLabel = button.getAttribute('data-original-label') || button.getAttribute('aria-label') || 'Copy to clipboard';
+                    button.setAttribute('data-icon', originalIcon);
+                    button.setAttribute('data-original-label', originalLabel);
+
+                    const markSuccess = function() {
+                        button.innerHTML = '✅';
+                        button.setAttribute('aria-label', 'Copied to clipboard');
+                        setTimeout(function() {
+                            button.innerHTML = originalIcon;
+                            button.setAttribute('aria-label', originalLabel);
+                        }, 2000);
+                    };
+
+                    const markFailure = function() {
+                        button.innerHTML = '⚠️';
+                        button.setAttribute('aria-label', 'Copy failed');
+                        setTimeout(function() {
+                            button.innerHTML = originalIcon;
+                            button.setAttribute('aria-label', originalLabel);
+                        }, 2000);
+                    };
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(markSuccess).catch(function() {
+                            fallbackCopy(text, markSuccess, markFailure);
+                        });
+                    } else {
+                        fallbackCopy(text, markSuccess, markFailure);
+                    }
+                });
+            });
+        }
+
         document.querySelectorAll('.expandable-header').forEach(function(header) {
             const card = header.parentElement;
 
@@ -1368,6 +1662,8 @@
                 });
             }
         });
+
+        setupCopyButtons();
     </script>
 </body>
 </html>

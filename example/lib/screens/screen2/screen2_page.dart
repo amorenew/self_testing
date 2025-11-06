@@ -37,7 +37,7 @@ class _Screen2PageState extends State<Screen2Page> {
     return Scaffold(
       appBar: AppBar(
         title: KeyedSubtree(
-          key: AppKeys.screen2Title,
+          key: AppKeys.screen2Title.key,
           child: const Text('Screen 2'),
         ),
       ),
@@ -47,15 +47,15 @@ class _Screen2PageState extends State<Screen2Page> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             KeyedSubtree(
-              key: AppKeys.screen2Greeting,
+              key: AppKeys.screen2Greeting.key,
               child: const Text(
-                'Hello World 2',
+                'Hello Wold 2',
                 style: TextStyle(fontSize: 24),
               ),
             ),
             const SizedBox(height: 24),
             TextField(
-              key: AppKeys.screen2InputField,
+              key: AppKeys.screen2InputField.key,
               controller: _controller,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -67,7 +67,7 @@ class _Screen2PageState extends State<Screen2Page> {
               _latestValue.isEmpty
                   ? 'Nothing typed yet'
                   : 'You typed: $_latestValue',
-              key: AppKeys.screen2InputPreview,
+              key: AppKeys.screen2InputPreview.key,
             ),
           ],
         ),

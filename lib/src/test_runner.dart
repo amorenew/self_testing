@@ -25,8 +25,10 @@ class TestRunner {
       debugPrint('🎯 Scenario: ${scenario.name}');
       final scenarioStart = DateTime.now();
       final stepResults = <Map<String, dynamic>>[];
+      TestingDiagnostics.setActiveScenario(scenario.name);
 
       for (final step in scenario.steps) {
+        TestingDiagnostics.setActiveStep(step.name);
         final stepResult = await _runStep(
           step,
           useLocalStorage: useLocalStorage,
@@ -46,7 +48,11 @@ class TestRunner {
         'durationMs': scenarioEnd.difference(scenarioStart).inMilliseconds,
         'steps': stepResults,
       });
+
+      TestingDiagnostics.setActiveStep(null);
     }
+
+    TestingDiagnostics.setActiveScenario(null);
 
     debugPrint('✅ Testing session completed.');
 
@@ -103,16 +109,21 @@ class TestRunner {
     debugPrint('▶️ Running test: ${step.name}');
     final stepStart = DateTime.now();
     String? error;
+    TestingDiagnostics.recordAction('Starting test step → ${step.name}');
 
     TestDetailRecorder.start();
+    TestDetailRecorder.add('Step started → ${step.name}');
     var recordedDetails = const <String>[];
 
     try {
       await step.action(step);
       debugPrint('✅ Test ${step.name} passed');
+      TestDetailRecorder.add('Step passed → ${step.name}');
     } catch (e) {
       error = e.toString();
       debugPrint('❌ Test ${step.name} failed: $error');
+      TestDetailRecorder.add('Step failed → ${step.name}: $error');
+      TestingDiagnostics.emitContextSnapshot(prefix: '❗');
     } finally {
       recordedDetails = TestDetailRecorder.finish();
     }

@@ -12,17 +12,17 @@ class TextVerificationScenario {
         action: (step) async {
           final robot = Screen1Robot(testStep: step);
           robot.verifyTextEquals(
-            AppKeys.screen1Title,
+            AppKeys.screen1Title.currentKey,
             'Screen 1',
             label: 'Screen 1 title text',
           );
           robot.verifyTextEquals(
-            AppKeys.screen1Greeting,
+            AppKeys.screen1Greeting.currentKey,
             'Hello World',
             label: 'Screen 1 greeting text',
           );
           robot.verifyTextEquals(
-            AppKeys.navigateButton,
+            AppKeys.navigateButton.currentKey,
             'Go to Screen 2',
             label: 'Navigate button label',
           );
@@ -35,20 +35,22 @@ class TextVerificationScenario {
           await screen1Robot.tapNavigateButton();
 
           final screen2Robot = Screen2Robot(testStep: step);
-          await screen2Robot.waitForLoad(readyKey: AppKeys.screen2Title);
+          await screen2Robot.waitForLoad(
+            readyKey: AppKeys.screen2Title.currentKey,
+          );
           screen2Robot.verifyTextEquals(
-            AppKeys.screen2Title,
+            AppKeys.screen2Title.currentKey,
             'Screen 2',
             label: 'Screen 2 title text',
           );
           screen2Robot.verifyTextEquals(
-            AppKeys.screen2Greeting,
+            AppKeys.screen2Greeting.currentKey,
             'Hello World 2',
             label: 'Screen 2 greeting text',
           );
 
           await screen2Robot.navigateBack(
-            waitForKey: AppKeys.screen2Title,
+            waitForKey: AppKeys.screen2Title.currentKey,
             waitForDisappear: true,
           );
         },

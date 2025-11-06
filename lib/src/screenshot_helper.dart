@@ -25,7 +25,7 @@ class ScreenshotHelper {
 
       final boundary =
           screenshotContext.findRenderObject() as RenderRepaintBoundary;
-      final image = await boundary.toImage(pixelRatio: 3.0);
+      final image = await boundary.toImage(pixelRatio: 1);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       final pngBytes = byteData!.buffer.asUint8List();
       final fileName = _ensurePngExtension(name);

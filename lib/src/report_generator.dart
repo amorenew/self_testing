@@ -38,8 +38,9 @@ class ReportGenerator {
         ? (passedTests / totalTests * 100).toStringAsFixed(1)
         : '0.0';
 
-    final scenarioCards =
-        scenarios.map((scenario) => _buildScenarioCard(scenario)).join('\n');
+    final scenarioCards = scenarios.asMap().entries
+        .map((entry) => _buildScenarioCard(entry.value, index: entry.key))
+        .join('\n');
 
     final totalScenarios = scenarios.length;
     final runStart = _findBoundaryTimestamp(
@@ -292,15 +293,16 @@ class ReportGenerator {
             gap: 0.55rem;
             border-bottom: 2px solid #e2e8f0;
             flex-wrap: wrap;
+            justify-content: flex-start;
         }
 
         .scenario-metrics {
             display: flex;
-            flex: 1 1 320px;
             align-items: center;
             justify-content: flex-end;
             gap: 0.5rem;
             flex-wrap: wrap;
+            margin-left: auto;
         }
 
         .scenario-chip-group {
@@ -382,13 +384,13 @@ class ReportGenerator {
         }
 
         .scenario-title {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.65rem;
+            gap: 0.4rem;
             font-size: 1.05rem;
             font-weight: 600;
             color: #1a202c;
-            flex: 0 1 220px;
+            flex: 0 1 auto;
         }
 
         .scenario-toggle-icon {
@@ -406,6 +408,51 @@ class ReportGenerator {
             transform: rotate(90deg);
         }
 
+        .copy-button {
+            border: none;
+            background: rgba(76, 81, 191, 0.12);
+            color: #4c51bf;
+            width: 1.2rem;
+            height: 1.2rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.85rem;
+            line-height: 1;
+            transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+        }
+
+        .copy-button:hover {
+            background: rgba(76, 81, 191, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .copy-button:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.35);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .scenario-title .copy-button,
+        .test-name .copy-button,
+        .details-section summary .copy-button,
+        .error-title .copy-button {
+            margin-left: 0.35rem;
+            flex: 0 0 auto;
+        }
+
+        .scenario-title-text,
+        .test-name-text,
+        .error-title-text {
+            flex: 0 1 auto;
+            min-width: 0;
+        }
+
         .scenario-status {
             display: inline-flex;
             align-items: center;
@@ -416,7 +463,7 @@ class ReportGenerator {
             text-transform: uppercase;
             letter-spacing: 0.8px;
             font-size: 0.62rem;
-            margin-left: auto;
+            margin-left: 0.4rem;
             min-width: 4.5rem;
             justify-content: center;
         }
@@ -470,7 +517,7 @@ class ReportGenerator {
             padding: 0.55rem 0.9rem;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 0.6rem;
             flex-wrap: wrap;
             border-bottom: 2px solid #e2e8f0;
@@ -490,10 +537,11 @@ class ReportGenerator {
             font-size: 0.95rem;
             font-weight: 600;
             color: #2d3748;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            flex: 1 1 220px;
+            gap: 0.35rem;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .test-toggle-icon {
@@ -517,6 +565,7 @@ class ReportGenerator {
             align-items: center;
             gap: 0.35rem;
             flex-wrap: wrap;
+            margin-left: auto;
         }
 
         .test-status {
@@ -529,6 +578,7 @@ class ReportGenerator {
             font-size: 0.64rem;
             text-transform: uppercase;
             letter-spacing: 0.55px;
+            margin-left: 0.4rem;
         }
 
         .test-status.passed {
@@ -590,30 +640,65 @@ class ReportGenerator {
             margin-top: 1rem;
             background: #edf2f7;
             border-radius: 12px;
-            padding: 0.9rem 1.1rem;
             border: 1px solid #e2e8f0;
+            overflow: hidden;
         }
 
-        .details-title {
+        .details-section summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 0.45rem;
+        }
+
+        .details-section summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .details-toggle-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            color: #4c51bf;
+            font-size: 0.8rem;
+            line-height: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .details-section[open] .details-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        .details-summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
             font-size: 0.9rem;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 0.6rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
-        .details-title::before {
+        .details-summary::before {
             content: '📝';
+        }
+
+        .details-section[open] summary {
+            border-bottom: 1px solid #cbd5e0;
+            background: rgba(148, 163, 184, 0.15);
         }
 
         .details-section ul {
             list-style: disc;
-            margin-left: 1.5rem;
+            margin: 0;
+            padding: 0.85rem 1.2rem 1.1rem 2.2rem;
             color: #4a5568;
             display: grid;
-            gap: 0.3rem;
+            gap: 0.35rem;
         }
 
         .error-title {
@@ -623,6 +708,7 @@ class ReportGenerator {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            justify-content: flex-start;
         }
 
         .error-title::before {
@@ -1079,6 +1165,83 @@ class ReportGenerator {
             }
         });
 
+        function fallbackCopy(text, onSuccess, onFailure) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (successful) {
+                    onSuccess();
+                } else {
+                    onFailure();
+                }
+            } catch (error) {
+                onFailure();
+            }
+        }
+
+        function setupCopyButtons() {
+            document.querySelectorAll('.copy-button').forEach(function(button) {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const targetId = button.getAttribute('data-copy-target');
+                    let text = '';
+
+                    if (targetId) {
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            text = targetElement.textContent || '';
+                        }
+                    } else {
+                        text = button.getAttribute('data-copy') || '';
+                    }
+
+                    if (!text) {
+                        return;
+                    }
+
+                    const originalIcon = button.getAttribute('data-icon') || button.innerHTML;
+                    const originalLabel = button.getAttribute('data-original-label') || button.getAttribute('aria-label') || 'Copy to clipboard';
+                    button.setAttribute('data-icon', originalIcon);
+                    button.setAttribute('data-original-label', originalLabel);
+
+                    const markSuccess = function() {
+                        button.innerHTML = '✅';
+                        button.setAttribute('aria-label', 'Copied to clipboard');
+                        setTimeout(function() {
+                            button.innerHTML = originalIcon;
+                            button.setAttribute('aria-label', originalLabel);
+                        }, 2000);
+                    };
+
+                    const markFailure = function() {
+                        button.innerHTML = '⚠️';
+                        button.setAttribute('aria-label', 'Copy failed');
+                        setTimeout(function() {
+                            button.innerHTML = originalIcon;
+                            button.setAttribute('aria-label', originalLabel);
+                        }, 2000);
+                    };
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(markSuccess).catch(function() {
+                            fallbackCopy(text, markSuccess, markFailure);
+                        });
+                    } else {
+                        fallbackCopy(text, markSuccess, markFailure);
+                    }
+                });
+            });
+        }
+
         document.querySelectorAll('.expandable-header').forEach(function(header) {
             const card = header.parentElement;
 
@@ -1125,6 +1288,8 @@ class ReportGenerator {
                 });
             }
         });
+
+        setupCopyButtons();
     </script>
 </body>
 </html>
@@ -1152,10 +1317,15 @@ class ReportGenerator {
     return const [];
   }
 
-  static String _buildScenarioCard(Map<String, dynamic> scenario) {
+  static String _buildScenarioCard(
+    Map<String, dynamic> scenario, {
+    required int index,
+  }) {
     final steps = _extractSteps(scenario);
     final status = (scenario['status'] ?? 'unknown').toString();
     final scenarioName = (scenario['name'] ?? 'Scenario').toString();
+    final scenarioId = 'scenario-$index';
+    final scenarioCopyText = _escapeAttribute(scenarioName);
     final passedSteps =
         steps.where((step) => step['status'] == 'passed').length;
     final failedSteps = steps.length - passedSteps;
@@ -1165,7 +1335,16 @@ class ReportGenerator {
     final formattedEnd = _formatDateTime(scenario['endedAt']?.toString());
     final durationLabel = _formatDuration(durationMs);
     final stepsMarkup = steps.isNotEmpty
-        ? steps.map((step) => _buildTestCard(step, nested: true)).join('\n')
+        ? steps.asMap().entries
+            .map(
+              (entry) => _buildTestCard(
+                entry.value,
+                scenarioId: scenarioId,
+                index: entry.key,
+                nested: true,
+              ),
+            )
+            .join('\n')
         : '<div class="no-screenshots">No steps recorded.</div>';
 
     final cardClasses = ['scenario-card', 'expandable', status].join(' ');
@@ -1175,7 +1354,8 @@ class ReportGenerator {
             <div class="scenario-header $status expandable-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="scenario-title">
                     <span class="scenario-toggle-icon" aria-hidden="true">&#9654;</span>
-                    <span>${_escapeHtml(scenarioName)}</span>
+                    <span class="scenario-title-text">${_escapeHtml(scenarioName)}</span>
+                    <button class="copy-button" type="button" aria-label="Copy scenario title" data-copy="$scenarioCopyText">📋</button>
                 </div>
                 <div class="scenario-metrics">
                     <div class="scenario-chip-group">
@@ -1202,6 +1382,8 @@ class ReportGenerator {
 
   static String _buildTestCard(
     Map<String, dynamic> result, {
+    required String scenarioId,
+    required int index,
     bool nested = false,
   }) {
     final name = (result['name'] ?? 'Unknown Test').toString();
@@ -1210,6 +1392,7 @@ class ReportGenerator {
     final durationValue = result['durationMs'];
     final durationMs = durationValue is num ? durationValue.toInt() : null;
     final error = result['error'];
+    final stepCopyText = _escapeAttribute(name);
 
     final rawScreenshots = result['screenshots'];
     final screenshots = rawScreenshots is List
@@ -1224,6 +1407,18 @@ class ReportGenerator {
             .toList()
         : const <String>[];
 
+    final errorCopyText = error != null
+        ? _escapeAttribute('Error Details\n${error.toString()}')
+        : '';
+    final detailsCopyText = details.isNotEmpty
+        ? _escapeAttribute(
+            [
+              'Verification Details',
+              ...details.map((item) => '- $item'),
+            ].join('\n'),
+          )
+        : '';
+
     final hasScreenshots = screenshots.isNotEmpty;
     final hasGolden = goldenEntries.isNotEmpty;
     final showScreenshots = hasScreenshots && !hasGolden;
@@ -1236,7 +1431,10 @@ class ReportGenerator {
     final errorSection = error != null
         ? '''
             <div class="error-section">
-                <div class="error-title">Error Details</div>
+                <div class="error-title">
+                    <span class="error-title-text">Error Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy error details" data-copy="$errorCopyText">📋</button>
+                </div>
                 <div class="error-message">${_escapeHtml(error.toString())}</div>
             </div>
         '''
@@ -1260,12 +1458,16 @@ class ReportGenerator {
 
     final detailsSection = details.isNotEmpty
         ? '''
-            <div class="details-section">
-                <div class="details-title">Verification Details</div>
+            <details class="details-section">
+                <summary>
+                    <span class="details-toggle-icon" aria-hidden="true">&#9654;</span>
+                    <span class="details-summary">Verification Details</span>
+                    <button class="copy-button" type="button" aria-label="Copy verification details" data-copy="$detailsCopyText">📋</button>
+                </summary>
                 <ul>
                     ${details.map((item) => '<li>${_escapeHtml(item)}</li>').join('\n')}
                 </ul>
-            </div>
+            </details>
         '''
         : '';
 
@@ -1313,7 +1515,7 @@ class ReportGenerator {
     return '''
         <div class="$cardClasses">
             <div $headerAttributes>
-                <div class="test-name">$toggleIcon<span>${_escapeHtml(name)}</span></div>
+                <div class="test-name">$toggleIcon<span class="test-name-text">${_escapeHtml(name)}</span><button class="copy-button" type="button" aria-label="Copy step title" data-copy="$stepCopyText">📋</button></div>
                 $metaSection
                 <div class="test-status $status">${status.toUpperCase()}</div>
             </div>
@@ -1597,6 +1799,10 @@ class ReportGenerator {
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+  }
+
+  static String _escapeAttribute(String value) {
+    return _escapeHtml(value).replaceAll('\n', '&#10;');
   }
 
   static String _badgeClassForStatus(String statusSlug) {
