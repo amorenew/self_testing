@@ -8,6 +8,15 @@ class TextVerificationScenario {
     name: 'Text Verification',
     steps: [
       TestStep(
+        name: 'Verify Screen 1 UI',
+        action: (step) async {
+          final robot = Screen1Robot(testStep: step);
+
+          await robot.captureScreenshot('Wrong Text');
+        },
+      ),
+
+      TestStep(
         name: 'Verify Screen 1 Texts',
         action: (step) async {
           final robot = Screen1Robot(testStep: step);

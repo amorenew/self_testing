@@ -20,13 +20,13 @@ class Screen1Page extends StatelessWidget {
           children: [
             KeyedSubtree(
               key: AppKeys.screen1Greeting.key,
-              child: const Text('Hello World', style: TextStyle(fontSize: 24)),
+              child: const Text('Hello World Wrong Text', style: TextStyle(fontSize: 24)),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
               key: AppKeys.navigateButton.key,
-              onPressed: () {
-                Navigator.push(
+              onPressed: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const Screen2Page()),
                 );

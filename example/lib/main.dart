@@ -30,8 +30,8 @@ void main() {
   runApp(const MyApp());
 
   // Start tests after first frame to ensure widget tree built
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    TestRunner.runAll([
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    await TestRunner.runAll([
       InputFieldScenario().build(),
       TextVerificationScenario().build(),
       NavigationFlowScenario().build(),

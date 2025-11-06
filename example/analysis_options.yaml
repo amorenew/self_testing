@@ -1,1 +1,11 @@
 include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    - unawaited_futures
+    - discarded_futures
+
+analyzer:
+  errors:
+    unawaited_futures: error
+    discarded_futures: error
