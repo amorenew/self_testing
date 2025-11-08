@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:self_testing/src/robot_actions.dart';
 import 'package:self_testing/src/robot_config.dart';
-import 'package:self_testing/src/test_runner.dart';
+import 'package:self_testing/src/robot_verifications.dart';
+import 'package:self_testing/src/robot_wait_helpers.dart';
 import 'package:self_testing/src/screenshot_helper.dart';
 import 'package:self_testing/src/test_detail_recorder.dart';
+import 'package:self_testing/src/test_runner.dart';
 import 'package:self_testing/src/testing_manager.dart';
 
 /// Abstract base class for all Robot implementations.
@@ -12,18 +15,20 @@ import 'package:self_testing/src/testing_manager.dart';
 /// - Methods return the robot instance for method chaining
 /// - Include verification methods to assert UI state
 /// - Handle async operations with proper wait mechanisms
-abstract class BaseRobot<T extends BaseRobot<T>> {
+abstract class BaseRobot<T extends BaseRobot<T>>
+    with RobotWaitHelpers, RobotVerifications, RobotActions<T> {
   BaseRobot({this.testStep});
 
-  /// Context reference for widget tree access
+  @override
   BuildContext? get context;
 
-  /// Reference to the currently executing test step, when provided.
+  @override
   final TestStep? testStep;
 
-  /// Returns the concrete robot instance for method chaining
+  @override
   T get self => this as T;
 
+  @override
   void logAction(
     String message, {
     bool recordDetail = true,
@@ -52,184 +57,14 @@ abstract class BaseRobot<T extends BaseRobot<T>> {
     }
   }
 
-  String _describeTarget(
-    GlobalKey key, {
-    String? label,
-  }) {
-    if (label != null && label.trim().isNotEmpty) {
-      return label;
-    }
-
+  @override
+  String describeTarget(GlobalKey key, {String? label}) {
+    if (label != null && label.trim().isNotEmpty) return label;
     final keyDescription = key.toString();
-    if (keyDescription.isNotEmpty) {
-      return keyDescription;
-    }
-
+    if (keyDescription.isNotEmpty) return keyDescription;
     return key.runtimeType.toString();
   }
 
-  /// Finds a widget by its GlobalKey and returns it as the expected type.
-  ///
-  /// Generic type parameter renamed to [W] to avoid confusion with the
-  /// class-level generic [T] used for the robot instance.
-  ///
-  /// Throws an [Exception] if the widget is not found or wrong type.
-  W findWidgetByKey<W extends Widget>(GlobalKey key) {
-    final widget = key.currentWidget;
-    if (widget == null || widget is! W) {
-      throw Exception(
-        'Widget with key ${key.toString()} not found or has wrong type. Expected ${W.toString()}',
-      );
-    }
-    return widget;
-  }
-
-  /// Finds a widget context by its GlobalKey
-  ///
-  /// Throws an exception if the context is not found.
-  BuildContext findContextByKey(GlobalKey key) {
-    final ctx = key.currentContext;
-    if (ctx == null) {
-      throw Exception('Context for key ${key.toString()} not found');
-    }
-    return ctx;
-  }
-
-  /// Waits for a specified duration
-  ///
-  /// Useful for animations or loading states.
-  Future<void> wait([Duration duration = RobotConfig.defaultWait]) {
-    return Future.delayed(duration);
-  }
-
-  /// Waits for a condition to be true.
-  ///
-  /// Polls the condition every [interval] until it returns true
-  /// or [timeout] is reached.
-  ///
-  /// Throws [RobotTimeoutException] if the condition is not met within the timeout.
-  Future<void> waitUntil(
-    bool Function() condition, {
-    Duration timeout = const Duration(seconds: 5),
-    Duration interval = const Duration(milliseconds: 100),
-  }) async {
-    final startTime = DateTime.now();
-    while (!condition()) {
-      if (DateTime.now().difference(startTime) > timeout) {
-        throw RobotTimeoutException(
-          'Condition not met within ${timeout.inSeconds}s',
-        );
-      }
-      await Future.delayed(interval);
-    }
-  }
-
-  /// Waits until a widget identified by [key] becomes available in the tree.
-  Future<void> waitForWidget(
-    GlobalKey key, {
-    Duration timeout = RobotConfig.uiSettleTimeout,
-    Duration interval = const Duration(milliseconds: 60),
-  }) async {
-    final target = _describeTarget(key);
-    logAction('Waiting for widget to appear → $target');
-    await waitUntil(
-      () => key.currentWidget != null,
-      timeout: timeout,
-      interval: interval,
-    );
-    logAction('Widget detected in tree → $target', recordDetail: false);
-  }
-
-  /// Waits until a widget identified by [key] is removed from the tree.
-  Future<void> waitForWidgetToDisappear(
-    GlobalKey key, {
-    Duration timeout = RobotConfig.uiSettleTimeout,
-    Duration interval = const Duration(milliseconds: 60),
-  }) async {
-    final target = _describeTarget(key);
-    logAction('Waiting for widget to disappear → $target');
-    await waitUntil(
-      () => key.currentWidget == null,
-      timeout: timeout,
-      interval: interval,
-    );
-    logAction('Widget removed from tree → $target', recordDetail: false);
-  }
-
-  /// Verifies that a condition is true
-  ///
-  /// Throws an assertion error with [message] if condition is false.
-  void verify(bool condition, String message) {
-    if (!condition) {
-      logAction('Verification failed → $message', forcePrint: true);
-      throw AssertionError('Verification failed: $message');
-    }
-    logAction('Verification passed → $message', recordDetail: false);
-  }
-
-  /// Verifies that a widget exists by GlobalKey
-  void verifyWidgetExists(GlobalKey key, {String? label}) {
-    final target = _describeTarget(key, label: label);
-    logAction('Verifying widget exists → $target');
-    final exists = key.currentWidget != null;
-    verify(
-      exists,
-      '${label ?? key.toString()} should exist in the widget tree',
-    );
-    logAction('Widget exists → $target', recordDetail: false);
-  }
-
-  /// Verifies that a widget identified by [key] exposes the [expectedText] value.
-  ///
-  /// Supports [Text] widgets, keyed subtrees wrapping text, and button-style
-  /// widgets whose child resolves to a text node.
-  void verifyTextEquals(GlobalKey key, String expectedText, {String? label}) {
-    final target = _describeTarget(key, label: label);
-    logAction('Verifying text equals "$expectedText" → $target');
-    verifyWidgetExists(key, label: label);
-
-    final widget = key.currentWidget;
-    final resolved = widget != null ? _extractText(widget) : null;
-
-    if (resolved == null) {
-      throw Exception(
-        'Widget ${label ?? key.toString()} does not expose a readable text value.',
-      );
-    }
-
-    verify(
-      resolved == expectedText,
-      '${label ?? key.toString()} expected "$expectedText" but found "$resolved"',
-    );
-
-    logAction('Text matches "$expectedText" → $target', recordDetail: false);
-    TestDetailRecorder.add('${label ?? key.toString()} → "$resolved"');
-  }
-
-  /// Recursively extracts a text value from supported widget types.
-  String? _extractText(Widget widget) {
-    if (widget is Text) {
-      return widget.data ?? widget.textSpan?.toPlainText();
-    }
-
-    if (widget is KeyedSubtree) {
-      return _extractText(widget.child);
-    }
-
-    if (widget is ButtonStyleButton) {
-      final child = widget.child;
-      return child != null ? _extractText(child) : null;
-    }
-
-    return null;
-  }
-
-  /// Captures a screenshot with golden comparison
-  ///
-  /// [name] - The identifier for the screenshot/golden baseline
-  /// [tolerance] - Optional custom diff tolerance (defaults to global setting)
-  ///
-  /// Returns the robot instance for method chaining.
   Future<T> captureScreenshot(String name, {double? tolerance}) async {
     final resolvedName = _composeScreenshotName(name);
     logAction('Capturing screenshot "$resolvedName"');
@@ -261,10 +96,6 @@ abstract class BaseRobot<T extends BaseRobot<T>> {
     return self;
   }
 
-  /// Waits for screen to be fully loaded
-  ///
-  /// Useful after navigation or when expecting async operations.
-  /// Returns the robot instance for method chaining.
   Future<T> waitForLoad({
     GlobalKey? readyKey,
     Duration? fallback,
@@ -273,7 +104,7 @@ abstract class BaseRobot<T extends BaseRobot<T>> {
   }) async {
     if (readyKey != null) {
       logAction(
-        'Waiting for screen load using key → ${_describeTarget(readyKey)}',
+        'Waiting for screen load using key → ${describeTarget(readyKey)}',
       );
     } else {
       logAction(
@@ -290,244 +121,13 @@ abstract class BaseRobot<T extends BaseRobot<T>> {
     return self;
   }
 
-  /// Navigates back to the previous screen
-  ///
-  /// Uses the navigator to pop the current route.
-  /// Returns the robot instance for method chaining.
-  Future<T> navigateBack({
-    GlobalKey? waitForKey,
-    bool waitForDisappear = false,
-    Duration? timeout,
-    Duration interval = const Duration(milliseconds: 60),
-  }) async {
-    NavigatorState? navigatorState;
-    logAction(
-      'Navigating back'
-      '${waitForKey != null ? ' (awaiting ${_describeTarget(waitForKey)})' : ''}',
-    );
-
-    if (context != null) {
-      navigatorState = Navigator.of(context!);
-    } else {
-      navigatorState = SelfTesting.maybeNavigatorKey?.currentState;
-    }
-
-    if (navigatorState == null) {
-      throw Exception('Cannot navigate back: no navigator available');
-    }
-
-    navigatorState.pop();
-
-    if (waitForKey != null) {
-      if (waitForDisappear) {
-        await waitForWidgetToDisappear(
-          waitForKey,
-          timeout: timeout ?? RobotConfig.uiSettleTimeout,
-          interval: interval,
-        );
-      } else {
-        await waitForWidget(
-          waitForKey,
-          timeout: timeout ?? RobotConfig.uiSettleTimeout,
-          interval: interval,
-        );
-      }
-    } else {
-      await wait(RobotConfig.defaultTapWait);
-    }
-
-    logAction('Navigation back completed', recordDetail: false);
-    return self;
-  }
-
-  /// Taps a widget identified by its [GlobalKey].
-  ///
-  /// Returns the robot instance for method chaining.
-  Future<T> tapByKey(GlobalKey key, {String? label}) async {
-    final target = _describeTarget(key, label: label);
-    final widget = key.currentWidget;
-    final ctx = key.currentContext;
-
-    if (widget == null || ctx == null) {
-      logAction(
-        'Cannot tap → $target (widget or context missing)',
-        forcePrint: true,
-      );
-      throw Exception(
-        'Widget ${label ?? key.toString()} not found via global key',
-      );
-    }
-
-    VoidCallback? callback;
-
-    if (widget is ButtonStyleButton) {
-      callback = widget.onPressed;
-    } else if (widget is GestureDetector) {
-      callback = widget.onTap;
-    }
-
-    if (callback != null) {
-      logAction('Tapping → $target');
-      callback();
-      logAction('Tapped → $target', recordDetail: false);
-      return self;
-    }
-
-    logAction('Widget not tappable → $target', forcePrint: true);
-    throw Exception('Widget ${label ?? key.toString()} is not tappable');
-  }
-
-  /// Taps a button by key and waits for animation/transition
-  ///
-  /// This is a common pattern for tapping buttons that trigger navigation.
-  /// Returns the robot instance for method chaining.
-  Future<T> tapAndWait(
-    GlobalKey key, {
-    String? label,
-    Duration waitDuration = RobotConfig.defaultTapWait,
-    GlobalKey? waitForKey,
-    bool waitForDisappear = false,
-    Duration? timeout,
-    Duration interval = const Duration(milliseconds: 60),
-  }) async {
-    final target = _describeTarget(key, label: label);
-    logAction('Tap and wait → $target');
-    await tapByKey(key, label: label);
-    if (waitForKey != null) {
-      if (waitForDisappear) {
-        await waitForWidgetToDisappear(
-          waitForKey,
-          timeout: timeout ?? RobotConfig.uiSettleTimeout,
-          interval: interval,
-        );
-      } else {
-        await waitForWidget(
-          waitForKey,
-          timeout: timeout ?? RobotConfig.uiSettleTimeout,
-          interval: interval,
-        );
-      }
-    } else {
-      await wait(waitDuration);
-    }
-    logAction('Tap and wait completed → $target', recordDetail: false);
-    return self;
-  }
-
-  /// Sets the value of a text input widget identified by [key].
-  ///
-  /// Supports [TextField], [TextFormField], and [EditableText] instances that
-  /// expose a [TextEditingController].
-  Future<T> enterText(GlobalKey key, String text, {String? label}) async {
-    final target = _describeTarget(key, label: label);
-    final widget = key.currentWidget;
-
-    if (widget == null) {
-      logAction(
-        'Cannot enter text → $target (widget not found)',
-        forcePrint: true,
-      );
-      throw Exception(
-        'Text input ${label ?? key.toString()} not found via global key',
-      );
-    }
-
-    final editable = _resolveEditable(widget);
-    if (editable == null) {
-      logAction(
-        'Cannot enter text → $target (unsupported widget)',
-        forcePrint: true,
-      );
-      throw Exception(
-        'Widget ${label ?? key.toString()} is not a supported text input',
-      );
-    }
-
-    editable.controller
-      ..text = text
-      ..selection = TextSelection.collapsed(offset: text.length);
-    editable.onChanged?.call(text);
-
-    logAction('Entered "$text" → $target');
-    await wait(RobotConfig.defaultTapWait);
-    return self;
-  }
-
-  /// Reads the current value from a text input identified by [key].
-  String readText(GlobalKey key, {String? label}) {
-    final target = _describeTarget(key, label: label);
-    final widget = key.currentWidget;
-
-    if (widget == null) {
-      logAction(
-        'Cannot read text → $target (widget not found)',
-        forcePrint: true,
-      );
-      throw Exception(
-        'Text input ${label ?? key.toString()} not found via global key',
-      );
-    }
-
-    final editable = _resolveEditable(widget);
-    if (editable == null) {
-      logAction(
-        'Cannot read text → $target (unsupported widget)',
-        forcePrint: true,
-      );
-      throw Exception(
-        'Widget ${label ?? key.toString()} is not a supported text input',
-      );
-    }
-
-    return editable.controller.text;
-  }
-
-  _EditableInput? _resolveEditable(Widget widget) {
-    if (widget is TextField) {
-      final controller = widget.controller;
-      if (controller == null) {
-        throw Exception(
-          'TextField ${widget.key?.toString() ?? ''} requires a controller',
-        );
-      }
-      return _EditableInput(controller, widget.onChanged);
-    }
-
-    if (widget is TextFormField) {
-      final controller = widget.controller;
-      if (controller == null) {
-        throw Exception(
-          'TextFormField ${widget.key?.toString() ?? ''} requires a controller',
-        );
-      }
-      return _EditableInput(controller, widget.onChanged);
-    }
-
-    if (widget is EditableText) {
-      return _EditableInput(widget.controller, widget.onChanged);
-    }
-
-    if (widget is KeyedSubtree) {
-      return _resolveEditable(widget.child);
-    }
-
-    return null;
-  }
-
   String _composeScreenshotName(String name) {
     final sanitizedBase = _sanitizeForFileName(name);
-    if (testStep == null) {
-      return sanitizedBase;
-    }
+    if (testStep == null) return sanitizedBase;
 
     final stepSlug = _sanitizeForFileName(testStep!.name);
-    if (stepSlug.isEmpty || stepSlug == sanitizedBase) {
-      return sanitizedBase;
-    }
-
-    if (sanitizedBase.startsWith('${stepSlug}_')) {
-      return sanitizedBase;
-    }
+    if (stepSlug.isEmpty || stepSlug == sanitizedBase) return sanitizedBase;
+    if (sanitizedBase.startsWith('${stepSlug}_')) return sanitizedBase;
 
     return '${stepSlug}_$sanitizedBase';
   }
@@ -546,22 +146,4 @@ abstract class BaseRobot<T extends BaseRobot<T>> {
         : value;
     return _sanitizeForFileName(base);
   }
-}
-
-/// Custom timeout exception specific to Robot wait utilities.
-/// Named distinctly to avoid shadowing dart:async's [TimeoutException].
-class RobotTimeoutException implements Exception {
-  RobotTimeoutException(this.message);
-
-  final String message;
-
-  @override
-  String toString() => 'RobotTimeoutException: $message';
-}
-
-class _EditableInput {
-  _EditableInput(this.controller, this.onChanged);
-
-  final TextEditingController controller;
-  final ValueChanged<String>? onChanged;
 }
