@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:self_testing/src/pages/testing_report_page.dart';
 import 'package:self_testing/src/report_generator.dart';
 import 'package:self_testing/src/robot_config.dart';
 import 'package:self_testing/src/screenshot_helper.dart';
@@ -14,6 +16,7 @@ class TestRunner {
   static Future<void> runAll(
     List<TestScenario> scenarios, {
     bool useLocalStorage = false,
+    bool navigateToReport = false,
   }) async {
     if (useLocalStorage) {
       await _resetResultsFile();
@@ -60,7 +63,7 @@ class TestRunner {
       await _writeScenarioResults(scenarioResults);
       debugPrint('📊 Generating HTML report...');
       await ReportGenerator.generateHtmlReport();
-      await _showReportToast();
+      await _showReportToast(navigateToReport: navigateToReport);
     }
   }
 
@@ -192,7 +195,7 @@ class TestRunner {
     debugPrint('📝 Saved ${scenarios.length} scenario(s) to ${file.path}');
   }
 
-  static Future<void> _showReportToast() async {
+  static Future<void> _showReportToast({bool navigateToReport = false}) async {
     final navigatorKey = SelfTesting.maybeNavigatorKey;
     if (navigatorKey == null) {
       debugPrint('⚠️ Unable to show report toast: navigator key not set.');
@@ -205,6 +208,17 @@ class TestRunner {
       return;
     }
 
+    if (navigateToReport) {
+      if (navigatorContext.mounted) {
+        await Navigator.of(navigatorContext).push(
+          MaterialPageRoute<void>(
+            builder: (_) => const TestingReportPage(),
+          ),
+        );
+      }
+      return;
+    }
+
     final messenger = ScaffoldMessenger.maybeOf(navigatorContext);
     if (messenger == null) {
       debugPrint('⚠️ Unable to show report toast: no ScaffoldMessenger found.');
@@ -212,9 +226,23 @@ class TestRunner {
     }
 
     messenger.showSnackBar(
-      const SnackBar(
-        content: Text('Visual report ready: report/test_report.html'),
-        duration: Duration(seconds: 3),
+      SnackBar(
+        content: const Text('Testing report ready'),
+        action: SnackBarAction(
+          label: 'View',
+          onPressed: () {
+            if (navigatorContext.mounted) {
+              unawaited(
+                Navigator.of(navigatorContext).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const TestingReportPage(),
+                  ),
+                ),
+              );
+            }
+          },
+        ),
+        duration: const Duration(seconds: 5),
       ),
     );
   }

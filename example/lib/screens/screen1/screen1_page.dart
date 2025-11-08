@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:self_testing/self_testing.dart';
 import 'package:self_testing_example/app_keys.dart';
 import 'package:self_testing_example/screens/screen2/screen2_page.dart';
 
@@ -20,7 +23,10 @@ class Screen1Page extends StatelessWidget {
           children: [
             KeyedSubtree(
               key: AppKeys.screen1Greeting.key,
-              child: const Text('Hello World Wrong Text', style: TextStyle(fontSize: 24)),
+              child: const Text(
+                'Hello World Wrong Text',
+                style: TextStyle(fontSize: 24),
+              ),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -32,6 +38,24 @@ class Screen1Page extends StatelessWidget {
                 );
               },
               child: const Text('Go to Screen 2'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                unawaited(
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const TestingReportPage(),
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.assessment),
+              label: const Text('View Test Report'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
             ),
           ],
         ),

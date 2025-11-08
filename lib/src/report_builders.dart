@@ -192,7 +192,8 @@ String buildTestCard(
       '<span class="scenario-chip subtle"><span class="chip-label">Finished</span><span class="chip-value">${escapeHtml(finishedAt)}</span></span>';
   final durationChip =
       '<span class="scenario-chip subtle"><span class="chip-label">Duration</span><span class="chip-value">${escapeHtml(durationLabel)}</span></span>';
-  final metaSection = '<div class="test-meta">$finishedChip $durationChip</div>';
+  final metaSection =
+      '<div class="test-meta">$finishedChip $durationChip</div>';
 
   return '''
       <div class="$cardClasses">
@@ -275,8 +276,9 @@ String buildSingleGoldenSection(
     );
   }
 
-  final linksSection =
-      links.isNotEmpty ? '<div class="golden-links">${links.join('')}</div>' : '';
+  final linksSection = links.isNotEmpty
+      ? '<div class="golden-links">${links.join('')}</div>'
+      : '';
 
   final imagesSection = buildGoldenImages(golden);
 

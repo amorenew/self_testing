@@ -2,111 +2,95 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:self_testing/src/report_builders.dart';
-import 'package:self_testing/src/report_helpers.dart';
-import 'package:self_testing/src/templates/html_template.dart';
+import 'package:self_testing/src/testing_manager.dart';
+import 'package:self_testing/src/testing_report_models.dart';
 
+/// Loads and caches testing report data for Flutter presentation.
+///
+/// The previous HTML generator wrote a static HTML file. This class now reads
+/// the JSON results produced during the test run and converts them into domain
+/// objects that can be rendered by Flutter widgets such as [TestingReportPage].
 class ReportGenerator {
+  ReportGenerator._();
+
+  static TestingReportData? _cachedReport;
+
+  /// Legacy entrypoint retained for backwards compatibility.
+  ///
+  /// Instead of generating HTML, the method now refreshes the cached
+  /// [TestingReportData] so that UI layers can display the report with Flutter
+  /// widgets.
   static Future<void> generateHtmlReport() async {
-    final resultsFile = File('report/test_results.json');
-    if (!await resultsFile.exists()) {
-      debugPrint('❌ Test results file not found!');
-      return;
+    try {
+      final report = await loadReportData();
+      _cachedReport = report;
+      debugPrint(
+        '✅ Testing report refreshed with ${report.scenarios.length} scenario(s).',
+      );
+    } on Object catch (error, stackTrace) {
+      debugPrint(
+        '⚠️ Failed to refresh testing report data: $error\n$stackTrace',
+      );
     }
-
-    final resultsJson = await resultsFile.readAsString();
-    final results = List<Map<String, dynamic>>.from(jsonDecode(resultsJson));
-
-    final html = _buildHtml(results);
-
-    final reportFile = File('report/test_report.html');
-    await reportFile.writeAsString(html);
-
-    debugPrint('✅ HTML report generated at: ${reportFile.absolute.path}');
   }
 
-  static String _buildHtml(List<Map<String, dynamic>> results) {
-    final scenarios = results;
-    final allSteps =
-        scenarios.map(extractSteps).expand((steps) => steps).toList();
+  /// Loads the latest testing report from disk and returns strongly typed
+  /// models for Flutter rendering.
+  static Future<TestingReportData> loadReportData() async {
+    final resultsFile = await _resolveResultsFile();
+    if (!await resultsFile.exists()) {
+      throw StateError('Test results file not found at ${resultsFile.path}');
+    }
 
-    final totalTests = allSteps.length;
-    final passedTests =
-        allSteps.where((step) => step['status'] == 'passed').length;
-    final failedTests = totalTests - passedTests;
-    final successRate = totalTests > 0
-        ? (passedTests / totalTests * 100).toStringAsFixed(1)
-        : '0.0';
+    final rawContent = await resultsFile.readAsString();
 
-    final scenarioCards = scenarios
-        .asMap()
-        .entries
-        .map((entry) => buildScenarioCard(entry.value, index: entry.key))
-        .join('\n');
+    dynamic decoded;
+    try {
+      decoded = jsonDecode(rawContent);
+    } on Object catch (error) {
+      throw FormatException('Unable to parse test results JSON: $error');
+    }
 
-    final totalScenarios = scenarios.length;
-    final runStart = findBoundaryTimestamp(
+    if (decoded is! List) {
+      throw FormatException('Test results JSON must be a list of scenarios.');
+    }
+
+    final scenarios = decoded
+        .whereType<Map>()
+        .map(
+          (value) => Map<String, dynamic>.from(
+            value.cast<String, dynamic>(),
+          ),
+        )
+        .toList(growable: false);
+
+    final reportDirectory = resultsFile.parent;
+    return TestingReportData.fromJson(
       scenarios,
-      'startedAt',
-      findEarliest: true,
+      reportDirectory: reportDirectory,
     );
-    final runEnd = findBoundaryTimestamp(
-      scenarios,
-      'endedAt',
-      findEarliest: false,
-    );
-    final runStartLabel =
-        runStart != null ? formatDateTime(runStart.toIso8601String()) : 'N/A';
-    final runEndLabel =
-        runEnd != null ? formatDateTime(runEnd.toIso8601String()) : 'N/A';
+  }
 
-    final hasDurationData = scenarios.any(
-      (scenario) => scenario['durationMs'] != null,
-    );
-    final totalDurationMs = hasDurationData
-        ? scenarios
-            .map((scenario) => scenario['durationMs'])
-            .whereType<num>()
-            .fold<int>(0, (sum, value) => sum + value.toInt())
-        : 0;
-    final totalDurationLabel =
-        hasDurationData ? formatDuration(totalDurationMs) : 'N/A';
+  /// Returns the most recently cached report data.
+  static TestingReportData? get cachedReport => _cachedReport;
 
-    final goldenEntries = allSteps
-        .map((step) => normalizeGoldenEntries(step['golden']))
-        .expand((entries) => entries)
-        .toList();
+  /// Clears the cached report forcing the next access to reload from disk.
+  static void clearCache() {
+    _cachedReport = null;
+  }
 
-    final goldenDiffs = goldenEntries
-        .map((golden) => golden['diffPercentage'])
-        .whereType<num>()
-        .map((value) => value.toDouble())
-        .toList();
+  /// Checks whether a results file is present on disk.
+  static Future<bool> hasReportFile() async {
+    final file = await _resolveResultsFile();
+    return file.exists();
+  }
 
-    final avgGoldenDiff = goldenDiffs.isNotEmpty
-        ? goldenDiffs.reduce((a, b) => a + b) / goldenDiffs.length
-        : null;
-
-    final goldenStatCard = goldenEntries.isNotEmpty
-        ? '''
-                <div class="stat-card golden">
-                    <h3>${formatPercent(avgGoldenDiff)}</h3>
-                    <p>Avg Golden Diff</p>
-                </div>
-        '''
-        : '';
-
-    return htmlTemplate(
-      runStartLabel: runStartLabel,
-      runEndLabel: runEndLabel,
-      totalScenarios: totalScenarios,
-      totalTests: totalTests,
-      passedTests: passedTests,
-      failedTests: failedTests,
-      successRate: successRate,
-      totalDurationLabel: totalDurationLabel,
-      goldenStatCard: goldenStatCard,
-      scenarioCards: scenarioCards,
-    );
+  static Future<File> _resolveResultsFile() async {
+    final projectRoot = SelfTesting.projectRootDirectory;
+    final reportDirectory = Directory('${projectRoot.path}/report');
+    if (!await reportDirectory.exists()) {
+      await reportDirectory.create(recursive: true);
+    }
+    return File('${reportDirectory.path}/test_results.json');
   }
 }

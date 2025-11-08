@@ -37,9 +37,8 @@ String formatDuration(int? durationMs) {
   if (totalSeconds < 60) return '${totalSeconds.toStringAsFixed(2)}s';
   final minutes = totalSeconds ~/ 60;
   final seconds = totalSeconds % 60;
-  final secondsLabel = seconds >= 1
-      ? '${seconds.toStringAsFixed(seconds >= 10 ? 0 : 1)}s'
-      : '';
+  final secondsLabel =
+      seconds >= 1 ? '${seconds.toStringAsFixed(seconds >= 10 ? 0 : 1)}s' : '';
   final minutesLabel = '${minutes}m';
   return secondsLabel.isEmpty ? minutesLabel : '$minutesLabel $secondsLabel';
 }
@@ -69,7 +68,8 @@ List<Map<String, dynamic>> normalizeGoldenEntries(dynamic raw) {
   if (raw is Iterable) {
     return raw
         .whereType<Map>()
-        .map((value) => Map<String, dynamic>.from(value.cast<String, dynamic>()))
+        .map(
+            (value) => Map<String, dynamic>.from(value.cast<String, dynamic>()))
         .toList();
   }
   return const [];

@@ -31,11 +31,15 @@ void main() {
 
   // Start tests after first frame to ensure widget tree built
   WidgetsBinding.instance.addPostFrameCallback((_) async {
-    await TestRunner.runAll([
-      InputFieldScenario().build(),
-      TextVerificationScenario().build(),
-      NavigationFlowScenario().build(),
-    ], useLocalStorage: SelfTesting.useLocalStorage);
+    await TestRunner.runAll(
+      [
+        InputFieldScenario().build(),
+        TextVerificationScenario().build(),
+        NavigationFlowScenario().build(),
+      ],
+      useLocalStorage: SelfTesting.useLocalStorage,
+      navigateToReport: true,
+    );
   });
 }
 
